@@ -10,3 +10,5 @@ results/*
 test/*
 Topography/*
 mat.std*
+data/CTL/*
+data/FUT/*
