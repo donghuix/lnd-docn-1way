@@ -1,11 +1,15 @@
 clear;close all;clc;
 
-load('bathtub_global_coastline_merit_90m.mat');
-load('domain_global_coastline_merit_90m.mat');
+addpath('../code');
+
+load('../data/bathtub_global_coastline_merit_90m.mat');
+load('../data/domain_global_coastline_merit_90m.mat');
 
 freq = '3h';
+% idx_GTSM2ELM: mapping index from GTSM grid to ELM grid
 numc = length(idx_GTSM2ELM);
-GCM = {'CMCC-CM2-VHR4','EC-Earth3P-HR','GFDL-CM4C192-SST','HadGEM3-GC31-HM-SST','HadGEM3-GC31-HM'};
+GCM = {'CMCC-CM2-VHR4','EC-Earth3P-HR','GFDL-CM4C192-SST',              ...
+       'HadGEM3-GC31-HM-SST','HadGEM3-GC31-HM'};
 
 SLR = 0 : 0.1 : 10;
 idx = 1 : size(merit_bathtub,1);
@@ -29,11 +33,11 @@ for i = 3%1 : length(GCM)
             end
             
             if im < 10
-            fin  = ['data/' period '/' GCM{i} '_' tag '_waterlevel_' num2str(iy) '_0' num2str(im) '_v1.nc'];
-            fout = ['MERIT_inundation/' GCM{i} '_' tag '_inundation_' num2str(iy) '_0' num2str(im) '.mat'];
+            fin  = ['../data/' period '/' GCM{i} '_' tag '_waterlevel_' num2str(iy) '_0' num2str(im) '_v1.nc'];
+            fout = ['../MERIT_inundation/' GCM{i} '_' tag '_inundation_' num2str(iy) '_0' num2str(im) '.mat'];
             else
-            fin  = ['data/' period '/' GCM{i} '_' tag '_waterlevel_' num2str(iy) '_'  num2str(im) '_v1.nc'];
-            fout = ['MERIT_inundation/' GCM{i} '_' tag '_inundation_' num2str(iy) '_' num2str(im) '.mat'];
+            fin  = ['../data/' period '/' GCM{i} '_' tag '_waterlevel_' num2str(iy) '_'  num2str(im) '_v1.nc'];
+            fout = ['../MERIT_inundation/' GCM{i} '_' tag '_inundation_' num2str(iy) '_' num2str(im) '.mat'];
             end
             
             if exist(fout,'file')
