@@ -21,7 +21,7 @@ F = griddedInterpolant(X,Y,merit_bathtub);
 days_of_month = [31;28;31;30;31;30;31;31;30;31;30;31];
 
 for i = 3%1 : length(GCM)
-    for iy = 1951 : 2014
+    for iy = 2016 : 2050
         for im = 1 : 12
             disp([GCM{i} ', year: ' num2str(iy) ', month: ' num2str(im)]);
             if iy < 2016
