@@ -9,33 +9,33 @@ load('../data/domain_global_coastline_merit_90m.mat');
 mask = ones(length(merit_x),1);
 fname_out = 'domain_global_coastline_merit_90m.nc';
 
-if ~exist('../inputdata/domain_global_coastline_merit_90m.nc','file')
-    generate_lnd_domain(merit_x,merit_y,merit_xv,merit_yv,merit_frac,mask,[],fname_out);
-    clm_gridded_surfdata_filename = ...
-    '/Users/xudo627/projects/cesm-inputdata/surfdata_0.5x0.5_simyr2000_c190418.nc';
-    lon = ncread(clm_gridded_surfdata_filename,'LONGXY');
-    lat = ncread(clm_gridded_surfdata_filename,'LATIXY');
-
-    in = NaN(length(merit_x),1);
-    for i = 1 : length(merit_x)
-        if mod(i,100) == 0
-            disp(i);
-        end
-        dist = (lon - merit_x(i)).^2 + (lat - merit_y(i)).^2;
-        in(i) = find(dist == min(dist(:)));
-    end
-end
-if ~exist('../inputdata/surfdata_global_coastline_merit_90m_c220913.nc','file')
-    fname_out2 = CreateCLMUgridSurfdatForE3SM(  ...
-                        in,                             ...
-                        clm_gridded_surfdata_filename,  ...
-                        '.', 'global_coastline_merit_90m',...
-                        [],[],[],[],[], ...
-                        [],[],[],[],[],[],[],[],[]);
-    ncwrite(fname_out2,'TOPO',merit_topo);
-    ncwrite(fname_out2,'LONGXY',merit_x);
-    ncwrite(fname_out2,'LATIXY',merit_y);
-end
+% if ~exist('../inputdata/domain_global_coastline_merit_90m.nc','file')
+%     generate_lnd_domain(merit_x,merit_y,merit_xv,merit_yv,merit_frac,mask,[],fname_out);
+%     clm_gridded_surfdata_filename = ...
+%     '/Users/xudo627/projects/cesm-inputdata/surfdata_0.5x0.5_simyr2000_c190418.nc';
+%     lon = ncread(clm_gridded_surfdata_filename,'LONGXY');
+%     lat = ncread(clm_gridded_surfdata_filename,'LATIXY');
+% 
+%     in = NaN(length(merit_x),1);
+%     for i = 1 : length(merit_x)
+%         if mod(i,100) == 0
+%             disp(i);
+%         end
+%         dist = (lon - merit_x(i)).^2 + (lat - merit_y(i)).^2;
+%         in(i) = find(dist == min(dist(:)));
+%     end
+% end
+% if ~exist('../inputdata/surfdata_global_coastline_merit_90m_c220913.nc','file')
+%     fname_out2 = CreateCLMUgridSurfdatForE3SM(  ...
+%                         in,                             ...
+%                         clm_gridded_surfdata_filename,  ...
+%                         '.', 'global_coastline_merit_90m',...
+%                         [],[],[],[],[], ...
+%                         [],[],[],[],[],[],[],[],[]);
+%     ncwrite(fname_out2,'TOPO',merit_topo);
+%     ncwrite(fname_out2,'LONGXY',merit_x);
+%     ncwrite(fname_out2,'LATIXY',merit_y);
+% end
 
 yrs      = [1951:2014 2016:2050];
 model    = 'GFDL-CM4C192-SST';
