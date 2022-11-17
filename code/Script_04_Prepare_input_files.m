@@ -3,7 +3,7 @@ clear;close all;clc;
 addpath('/Users/xudo627/donghui/CODE/Setup-E3SM-Mac/matlab-scripts-to-process-inputs/');
 addpath('/Users/xudo627/donghui/mylib/m/');
 
-load('domain_global_coastline_merit_90m.mat');
+load('../data/domain_global_coastline_merit_90m.mat');
 
 [merit_xv,merit_yv,merit_area] = xc2xv(merit_x,merit_y,1/8,1/8,1);
 mask = ones(length(merit_x),1);
