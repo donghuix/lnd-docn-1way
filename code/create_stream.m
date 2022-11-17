@@ -1,5 +1,8 @@
 function create_stream(fname,longxy,latixy,date_tag,time,varnames,vars)
-    ncid = netcdf.create(fname,'NC_CLOBBER');
+    if exist(fname,'file')
+        delete(fname);
+    end
+    ncid = netcdf.create(fname,'NETCDF4');
 % +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 %
 %                           Define dimensions
