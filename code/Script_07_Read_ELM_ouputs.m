@@ -11,7 +11,7 @@ for i = 1 : length(runs)
     rundir = [scratch runs{i} '/run/'];
     files  = dir([rundir '*.elm.h0.*.nc']);
     assert(length(files) == 128*12);
-    files  = files(64*12 + 1 : end);
+    %files  = files(64*12 + 1 : end);
     
     for j = 1 : length(files)
         filename = fullfile(files(j).folder,files(j).name);
