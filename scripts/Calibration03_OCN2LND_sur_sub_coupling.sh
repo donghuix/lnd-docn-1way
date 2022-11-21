@@ -48,7 +48,7 @@ cd ${CASE_DIR}/${CASE_NAME}
 
 ./xmlchange PIO_BUFFER_SIZE_LIMIT=67108864
 ./xmlchange PIO_TYPENAME_OCN=netcdf # pnetcdf doesn't support NETCDF4
-./xmlchange NTASKS=400
+./xmlchange NTASKS=600
 ./xmlchange STOP_N=128,STOP_OPTION=nyears
 ./xmlchange JOB_WALLCLOCK_TIME=48:00:00
 ./xmlchange REST_N=32,REST_OPTION=nyears
