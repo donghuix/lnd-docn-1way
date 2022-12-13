@@ -7,7 +7,7 @@ COMPILER=intel
 PROJECT=esmd
 
 FORCING=gfdl-esm4
-SCENARIO=ssp126
+SCENARIO=ssp585
 
 SRC_DIR=~/e3sm_lnd_ocn_two_way
 CASE_DIR=${SRC_DIR}/cime/scripts
@@ -15,7 +15,7 @@ CASE_DIR=${SRC_DIR}/cime/scripts
 cd ${SRC_DIR}
 
 GIT_HASH=`git log -n 1 --format=%h`
-CASE_NAME=OCN2LND_sur_sub_${FORCING}_${SCENARIO}_${GIT_HASH}.`date "+%Y-%m-%d-%H%M%S"`
+CASE_NAME=OCN2LND_nocoupl_${FORCING}_${SCENARIO}_${GIT_HASH}.`date "+%Y-%m-%d-%H%M%S"`
 
 cd ${SRC_DIR}/cime/scripts
 
@@ -48,7 +48,7 @@ cd ${CASE_DIR}/${CASE_NAME}
 
 ./xmlchange --file env_run.xml --id RUN_STARTDATE         --val 2016-01-01
 
-./xmlchange DATM_CO2_TSERIES=SSP1-2.6
+./xmlchange DATM_CO2_TSERIES=SSP5-8.5
 ./xmlchange ELM_CO2_TYPE=diagnostic
 ./xmlchange CCSM_BGC=CO2A
 
@@ -63,7 +63,7 @@ cd ${CASE_DIR}/${CASE_NAME}
 ./preview_namelists
 
 cat >> user_nl_cpl << EOF
-ocn_lnd_one_way = .true.
+ocn_lnd_one_way = .false.
 EOF
 cat >> user_nl_elm << EOF
 fsurdat = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_calibrated_c221109.nc'
@@ -77,9 +77,9 @@ EOF
 
 ./case.setup
 
-cp ${CASE_DIR}/${CASE_NAME}/CaseDocs/datm.streams.txt.co2tseries.SSP1-2.6 ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.co2tseries.SSP1-2.6
-chmod +rw ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.co2tseries.SSP1-2.6
-perl -w -i -p -e "s@/compyfs/inputdata/atm/datm7/CO2@/compyfs/xudo627/inputdata/CO2@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.co2tseries.SSP1-2.6 
+cp ${CASE_DIR}/${CASE_NAME}/CaseDocs/datm.streams.txt.co2tseries.SSP5-8.5 ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.co2tseries.SSP5-8.5
+chmod +rw ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.co2tseries.SSP5-8.5
+perl -w -i -p -e "s@/compyfs/inputdata/atm/datm7/CO2@/compyfs/xudo627/inputdata/CO2@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.co2tseries.SSP5-8.5 
 
 # ---------------------------------------------------------------------------- #
 # **************************************************************************** #
