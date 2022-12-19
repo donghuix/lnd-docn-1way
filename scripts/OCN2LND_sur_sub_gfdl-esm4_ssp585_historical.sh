@@ -15,7 +15,7 @@ CASE_DIR=${SRC_DIR}/cime/scripts
 cd ${SRC_DIR}
 
 GIT_HASH=`git log -n 1 --format=%h`
-CASE_NAME=OCN2LND_sur_sub_${FORCING}_${SCENARIO}_${GIT_HASH}.`date "+%Y-%m-%d-%H%M%S"`
+CASE_NAME=OCN2LND_sur_sub_${FORCING}_${SCENARIO}_historical_${GIT_HASH}.`date "+%Y-%m-%d-%H%M%S"`
 
 cd ${SRC_DIR}/cime/scripts
 
@@ -38,9 +38,9 @@ cd ${CASE_DIR}/${CASE_NAME}
 ./xmlchange DOCN_GTSM_FILENAME=domain_global_coastline_merit_90m.nc
 
 # Setup GTSM inundation and SLR forcings
-./xmlchange --file env_run.xml --id SSTICE_YEAR_START     --val 2016
-./xmlchange --file env_run.xml --id SSTICE_YEAR_END       --val 2050
-./xmlchange --file env_run.xml --id SSTICE_YEAR_ALIGN     --val 2016
+./xmlchange --file env_run.xml --id SSTICE_YEAR_START     --val 1966
+./xmlchange --file env_run.xml --id SSTICE_YEAR_END       --val 2000
+./xmlchange --file env_run.xml --id SSTICE_YEAR_ALIGN     --val 1966
 
 ./xmlchange --file env_run.xml --id DATM_CLMNCEP_YR_START --val 2016
 ./xmlchange --file env_run.xml --id DATM_CLMNCEP_YR_END   --val 2050
