@@ -1,9 +1,9 @@
 #!/bin/csh
 
 #SBATCH --job-name=read                 ## job_name
-#SBATCH --partition=short
+#SBATCH --partition=slurm
 #SBATCH --account=esmd                  ## project_name
-#SBATCH --time=02:00:00                 ## time_limit
+#SBATCH --time=10:00:00                 ## time_limit
 #SBATCH --nodes=1                       ## number_of_nodes
 #SBATCH --ntasks-per-node=1             ## number_of_cores
 #SBATCH --output=mat.stdout5            ## job_output_filename

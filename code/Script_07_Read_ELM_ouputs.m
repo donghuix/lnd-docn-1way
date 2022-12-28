@@ -17,21 +17,27 @@ if strcmp(type,'cal')
     tags    = {'fd=2.5','fd=0.1','fd=0.2','fd=0.5','fd=1.0','fd=5.0','fd=10.0','fd=20','fd=cal'};
 elseif strcmp(type,'sim')
     
-    runs = {'OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419',...
-            'OCN2LND_sur_sub_gfdl-esm4_ssp126_39b1f87.2022-12-10-172145',    ...
-            'OCN2LND_sur_sub_gfdl-esm4_ssp585_39b1f87.2022-12-10-165041',    ...
-            'OCN2LND_nocoupl_gfdl-esm4_ssp585_39b1f87.2022-12-12-140210'};
+    runs = {'OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419',        ...
+            'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_39b1f87.2022-12-17-153813', ...
+            'OCN2LND_sur_sub_gfdl-esm4_ssp585_historical_39b1f87.2022-12-17-104600', ...
+            'OCN2LND_sur_sub_gfdl-esm4_ssp585_39b1f87.2022-12-10-165041',            ...
+            'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_SLR0.25_39b1f87.2022-12-19-215706', ...
+            'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_SLR0.50_39b1f87.2022-12-19-220754', ...
+            'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_SLR0.75_39b1f87.2022-12-20-084505', ...
+            'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_SLR1.00_39b1f87.2022-12-20-085815'};
         
-    tags = {'historical','ssp126','ssp585','ssp585nc'};   
+    tags = {'ctl-ctl','ctl-fut','fut-ctl','fut-fut','ctl-025','ctl-050','ctl-075','ctl-100'}; 
+    
 end
 
            
 
 for i = 1 : length(runs)
     
-    if ~exist(['../data/outputs/' tags{i} '_zwt_annual.mat'],'file')
-        
     rundir = [scratch runs{i} '/run/'];
+    
+    if ~exist(['../data/outputs/' tags{i} '_zwt_annual.mat'],'file')
+    
     files  = dir([rundir '*.elm.h0.*.nc']);
     assert(length(files) == 128*12 || length(files) == 35*12 || length(files) == 64*12);
     %files  = files(64*12 + 1 : end);
@@ -116,6 +122,34 @@ for i = 1 : length(runs)
               'qover','qh2oocn','qlnd2ocn','qinfl');
     end
     
+    end
+    
+    if ~exist(['../data/outputs/' tags{i} '_AMR.mat'],'file')
+        % Read daily outputs
+        if i == 1 || i == 2 || i > 4
+            yr1 = 1971; yr2 = 2005;
+        elseif i == 3 || i == 4
+            yr1 = 2016; yr2 = 2050;
+        end
+
+        AMTR = NaN(84300,yr2-yr1+1);
+        AMDR = NaN(84300,yr2-yr1+1);
+        for yr = yr1 : yr2
+            files = dir([rundir '*.elm.h1.' num2str(yr) '*.nc']);
+            assert(length(files) == 365 || length(files) == 366);
+            tmp1 = NaN(84300,length(files));
+            tmp2 = NaN(84300,length(files));
+            for ii = 1 : length(files)
+                filename = fullfile(files(ii).folder,files(ii).name);
+                disp(filename);
+                tmp1(:,ii) = ncread(filename,'QRUNOFF');
+                tmp2(:,ii) = ncread(filename,'QDRAI');
+            end
+            AMTR(:,yr-yr1+1) = max(tmp1,[],2);
+            AMDR(:,yr-yr1+1) = max(tmp2,[],2);
+        end
+
+        save(['../data/outputs/' tags{i} '_AMR.mat'],'AMTR','AMDR');
     end
     
 end
