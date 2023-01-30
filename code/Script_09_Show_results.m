@@ -3,7 +3,8 @@ clear;close all;clc;
 addpath('/Users/xudo627/donghui/mylib/m/');
 addpath('/Users/xudo627/donghui/CODE/dengwirda-inpoly-355c57c/');
 
-read_data = 0;
+read_data = 1;
+res       = 2;
 
 exs1 = {'ctl-ctl','ctl-fut','fut-ctl','fut-fut'};
 tag1 = {'ctl_ctl','ctl_fut','fut_ctl','fut_fut'};
@@ -18,162 +19,459 @@ zwt = struct([]);
 amr = struct([]);
 rst = struct([]);
 
-% if exist('../data/deltarst.mat','file') && read_data
-%     load('../data/deltarst.mat');
-% else
-%     for i = 1 : length(exs1)
-%         disp(['Read ' exs1{i}]);
-%         rst(1).(tag1{i}) = load(['../data/outputs/' exs1{i} '_results_annual.mat']);
-%     end
-% 
-%     deltazwt1  = nanmean(zwt.ctl_fut.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-%     deltazwt2  = nanmean(zwt.fut_ctl.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-%     deltazwt3  = nanmean(zwt.fut_fut.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-%     
-%     [~,~,deltazwt1_2deg] = upscale_data(merit_x,merit_y,merit_frac,deltazwt1,2);
-%     [~,~,deltazwt2_2deg] = upscale_data(merit_x,merit_y,merit_frac,deltazwt2,2);
-%     [lon,lat,deltazwt3_2deg] = upscale_data(merit_x,merit_y,merit_frac,deltazwt3,2);
-% 
-%     save('../data/deltazwt.mat','deltazwt1_2deg','deltazwt2_2deg','deltazwt3_2deg');
-% end
+load coastlines.mat;
+load('../data/greenland.mat');
+gl_mask   = inpoly2([merit_x merit_y],[x y]);
+ind_small = merit_frac < 0.05;
 
+load('../fan/fan8th.mat');
+fan8th(gl_mask | ind_small) = [];
 
-if exist('../data/deltazwt.mat','file') && read_data
-    load('../data/deltazwt.mat');
+if exist(['../data/processed/ratio_' num2str(res) 'deg.mat'],'file') && 0
+    load(['../data/processed/ratio_' num2str(res) 'deg.mat']);
 else
     for i = 1 : length(exs1)
         disp(['Read ' exs1{i}]);
-        zwt(1).(tag1{i}) = load(['../data/outputs/' exs1{i} '_zwt_annual.mat']);
+        rst(1).(tag1{i}) = load(['../data/outputs/' exs1{i} '_results_annual.mat']);
     end
-
-    deltazwt1  = nanmean(zwt.ctl_fut.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-    deltazwt2  = nanmean(zwt.fut_ctl.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-    deltazwt3  = nanmean(zwt.fut_fut.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
     
-    [~,~,deltazwt1_2deg] = upscale_data(merit_x,merit_y,merit_frac,deltazwt1,2);
-    [~,~,deltazwt2_2deg] = upscale_data(merit_x,merit_y,merit_frac,deltazwt2,2);
-    [lon,lat,deltazwt3_2deg] = upscale_data(merit_x,merit_y,merit_frac,deltazwt3,2);
+    qinfl0 = nanmean(rst.ctl_ctl.qinfl,2);
+    qinfl1 = nanmean(rst.ctl_fut.qinfl,2);
+    qinfl2 = nanmean(rst.fut_ctl.qinfl,2);
+    qinfl3 = nanmean(rst.fut_fut.qinfl,2);
+    
+    qver0 = +nanmean(rst.ctl_ctl.qh2oocn(:,20:end),2);
+    qlat0 = -nanmean(rst.ctl_ctl.qlnd2ocn(:,20:end),2);
+        
+    qver1 = +nanmean(rst.ctl_fut.qh2oocn(:,20:end),2);
+    qlat1 = -nanmean(rst.ctl_fut.qlnd2ocn(:,20:end),2);
+        
+    qver2 = nanmean(rst.fut_ctl.qh2oocn(:,1:end),2);
+    qlat2 = -nanmean(rst.fut_ctl.qlnd2ocn(:,1:end),2);
+        
+    qver3 = nanmean(rst.fut_fut.qh2oocn(:,1:end),2);
+    qlat3 = -nanmean(rst.fut_fut.qlnd2ocn(:,1:end),2);
+    
+    foc1 = (qinfl3 - qinfl0).*86400.*365.25;
+    foc2 = (qlat3 - qlat0).*86400.*365.25;
+    foc3 = (qver3 - qver0).*86400.*365.25;
+    
+    foc1(gl_mask | ind_small) = [];
+    foc2(gl_mask | ind_small) = [];
+    foc3(gl_mask | ind_small) = [];
+    merit_x(gl_mask | ind_small) = [];
+    merit_y(gl_mask | ind_small) = [];
+    merit_frac(gl_mask | ind_small) = [];
+    merit_topo(gl_mask | ind_small) = [];
+    merit_area(gl_mask | ind_small) = [];
+    xv(:,gl_mask | ind_small) = [];
+    yv(:,gl_mask | ind_small) = [];
+    
+    load('../data/map1deg.mat');
+    foc1_1deg = mapping_1d_to_2d(foc1,mapping,map_1dto2d,size(lon));
+    foc2_1deg = mapping_1d_to_2d(foc2,mapping,map_1dto2d,size(lon));
+    foc3_1deg = mapping_1d_to_2d(foc3,mapping,map_1dto2d,size(lon));
 
-    save('../data/deltazwt.mat','deltazwt1_2deg','deltazwt2_2deg','deltazwt3_2deg');
+end
+labels = {'Land inifltration','Lateral flow','Ocean infiltration'};
+plot_exs3(lon,lat, foc1_1deg, foc2_1deg, foc3_1deg, -50, 50, labels);
+
+[lon5,lat5,fan5deg] = upscale_data(merit_x,merit_y,merit_frac,-fan8th,5);
+figure;imagesc([lon5(1,1) lon5(end,end)],[lat5(1,1) lat5(end,end)],fan5deg); hold on; 
+plot(lon5(fan5deg < 3),lat5(fan5deg < 3),'rx','LineWidth',1.5);
+set(gca,'YDir','normal');
+
+cities = GetCities();
+
+for i = 1 : length(cities)
+    plot(cities(i).X , cities(i).Y,'go','LineWidth',2);
 end
 
-% foc_amtr1 = nanmean(amr.ctl_fut.AMTR,2) ./ nanmean(amr.ctl_ctl.AMTR,2);
-% foc_amtr2 = nanmean(amr.fut_ctl.AMTR,2) ./ nanmean(amr.ctl_ctl.AMTR,2);
-% foc_amtr3 = nanmean(amr.fut_fut.AMTR,2) ./ nanmean(amr.ctl_ctl.AMTR,2);
-if exist('../data/deltaamtr.mat','file') && read_data
-    load('../data/deltaamtr.mat');
-else
-    for i = 1 : length(exs1)
-        disp(['Read ' exs1{i}]);
-        amr(1).(tag1{i}) = load(['../data/outputs/' exs1{i} '_AMR.mat']);
+for i = 1 : length(exs1)
+    disp(['Read ' exs1{i}]);
+    zwt(1).(tag1{i}) = load(['../data/outputs/' exs1{i} '_zwt_annual.mat']);
+end
+
+zwt0 = nanmean(zwt.ctl_ctl.zwtyr(:,20:end),2);
+zwt1 = nanmean(zwt.ctl_fut.zwtyr(:,20:end),2);
+zwt2 = nanmean(zwt.fut_ctl.zwtyr,2);
+zwt3 = nanmean(zwt.fut_fut.zwtyr,2);
+
+focz1 = zwt1 - zwt0;
+focz2 = zwt2 - zwt0;
+focz3 = zwt3 - zwt0;
+
+focz1(gl_mask | ind_small) = [];
+focz2(gl_mask | ind_small) = [];
+focz3(gl_mask | ind_small) = [];
+    
+focz1_1deg = mapping_1d_to_2d(focz1,mapping,map_1dto2d,size(lon));
+focz2_1deg = mapping_1d_to_2d(focz2,mapping,map_1dto2d,size(lon));
+focz3_1deg = mapping_1d_to_2d(focz3,mapping,map_1dto2d,size(lon));
+
+labels = {'CTL FUT','FUT CTL','FUT FUT'};
+plot_exs3(lon,lat, focz1_1deg, focz2_1deg, focz3_1deg, -0.5, 0.5,labels);
+
+zwt0(gl_mask | ind_small) = [];
+
+zwt.ctl_ctl.zwtyr(gl_mask | ind_small,:) = [];
+zwt.fut_fut.zwtyr(gl_mask | ind_small,:) = [];
+zwt.fut_ctl.zwtyr(gl_mask | ind_small,:) = [];
+zwt.ctl_fut.zwtyr(gl_mask | ind_small,:) = [];
+
+levels = [2; 5; 10; 20; 40];
+area = merit_frac.*merit_area;
+
+figure(200); set(gcf,'Position',[10 10 1400 800]);
+figure(201); set(gcf,'Position',[10 10 1400 800]);
+figure(203); set(gcf,'Position',[10 10 1400 800]);
+figure(202);
+for i = 1 : 6
+    
+    if i == 1
+        ind = find(zwt0 <= levels(i));
+    elseif i == 6
+        ind = find(zwt0 > levels(i-1));
+    else
+        ind = find(zwt0 > levels(i-1) & zwt0 <= levels(i));
     end
-    foc_amtr1 = prctile(amr.ctl_fut.AMTR,99,2) - prctile(amr.ctl_ctl.AMTR,99,2);
-    foc_amtr2 = prctile(amr.fut_ctl.AMTR,99,2) - prctile(amr.ctl_ctl.AMTR,99,2);
-    foc_amtr3 = prctile(amr.fut_fut.AMTR,99,2) - prctile(amr.ctl_ctl.AMTR,99,2);
 
-    [~,~,foc_amtr1_2deg]     = upscale_data(merit_x,merit_y,merit_frac,foc_amtr1,2);
-    [~,~,foc_amtr2_2deg]     = upscale_data(merit_x,merit_y,merit_frac,foc_amtr2,2);
-    [lon,lat,foc_amtr3_2deg] = upscale_data(merit_x,merit_y,merit_frac,foc_amtr3,2);
+    zwt_fut_fut = -nansum(zwt.fut_fut.zwtyr(ind,:).*area(ind),1)./nansum(area(ind));
+    zwt_fut_ctl = -nansum(zwt.fut_ctl.zwtyr(ind,:).*area(ind),1)./nansum(area(ind));
+    zwt_ctl_ctl = -nansum(zwt.ctl_ctl.zwtyr(ind,1:35).*area(ind),1)./nansum(area(ind));
+    zwt_ctl_fut = -nansum(zwt.ctl_fut.zwtyr(ind,1:35).*area(ind),1)./nansum(area(ind));
+    
+    wd = 1;
+    zwt_fut_fut = movmean(zwt_fut_fut,wd);
+    zwt_fut_ctl = movmean(zwt_fut_ctl,wd);
+    zwt_ctl_ctl = movmean(zwt_ctl_ctl,wd);
+    zwt_ctl_fut = movmean(zwt_ctl_fut,wd);
+    
+    fut_fut = -zwt.fut_fut.zwtyr(ind,:);
+    fut_ctl = -zwt.fut_ctl.zwtyr(ind,:);
+    ctl_ctl = -zwt.ctl_ctl.zwtyr(ind,1:35);
+    ctl_fut = -zwt.ctl_fut.zwtyr(ind,1:35);
+    
+    figure(202);
+    subplot(2,3,i);
+    d1 = nanmean(fut_fut,2) - nanmean(ctl_ctl,2);
+    d2 = nanmean(fut_fut,2) - nanmean(ctl_fut,2);
+    d3 = nanmean(fut_fut,2) - nanmean(fut_ctl,2);
+    d4 = d2 + d3;
+    plot(d1,d2,'ro'); hold on;
+    plot([min(d1) max(d1)],[min(d1) max(d1)],'g-','LineWidth',1.5); grid on;
+    figure(203);
+    subplot(2,3,i);
+    plot(d1,d3,'bx'); hold on;
+    plot([min(d1) max(d1)],[min(d1) max(d1)],'g-','LineWidth',1.5); grid on;
+    figure(204);
+    subplot(2,3,i);
+    if i == 1
+        ind = find(d1 >= -2 & d1 <=2 & d4 >=-2 & d4 <=3);
+        d1 = d1(ind);
+        d4 = d4(ind);
+    elseif i == 2
+        ind = find(d1 >= -2 & d1 <=3 & d4 >=-6 & d4 <=10);
+        d1 = d1(ind);
+        d4 = d4(ind);
+    elseif i == 3
+        ind = find(d1 >= -4 & d1 <=7 & d4 >=-6 & d4 <=15);
+        d1 = d1(ind);
+        d4 = d4(ind);
+    elseif i == 4
+        ind = find(d1 >= -5 & d1 <=7 & d4 >=-4 & d4 <=5);
+        d1 = d1(ind);
+        d4 = d4(ind);
+    elseif i == 6
+        ind = find(d1 >= -5 & d1 <=7 & d4 >=-10 & d4 <=8);
+        d1 = d1(ind);
+        d4 = d4(ind);
+    end
+    
+    plot(d1 - d4,'k.'); 
+    %plot(d1,d4,'kd'); hold on;
+    %plot([min(d1) max(d1)],[min(d1) max(d1)],'g-','LineWidth',1.5); grid on;
+    %[~,~,R2] = LSE(d1,d4);
+    title(['average difference = ' num2str(nanmean(d1-d4))]);
+    
+    [z1, trend1, ~, p1] = mk_test(zwt_ctl_ctl');
+    [z2, trend2, ~, p2] = mk_test(zwt_ctl_fut');
+    [z3, trend3, ~, p3] = mk_test(zwt_fut_ctl');
+    [z4, trend4, ~, p4] = mk_test(zwt_fut_fut'); 
+    [slope1, intercept1] = sens_slope(zwt_ctl_ctl');
+    [slope2, intercept1] = sens_slope(zwt_ctl_fut');
+    [slope3, intercept1] = sens_slope(zwt_fut_ctl');
+    [slope4, intercept1] = sens_slope(zwt_fut_fut');
+    
+    figure(201);
+    subplot_tight(2,3,i,[0.06 0.04]);hold on; grid on;
+    yyaxis left;
+    h(1) = plot(1971:2005,zwt_ctl_ctl,'k-', 'LineWidth',2);
+    h(2) = plot(1971:2005,zwt_ctl_fut,'g:', 'LineWidth',2);
+    h(3) = plot(2016:2050,zwt_fut_ctl,'b--','LineWidth',2);
+    h(4) = plot(2016:2050,zwt_fut_fut,'r-','LineWidth',2); 
+    yyaxis right;
+    plot(1971:2005,zwt_ctl_fut-zwt_ctl_ctl,'k:','LineWidth',2); 
+    h(4) = plot(2016:2050,zwt_fut_fut-zwt_fut_ctl,'k:','LineWidth',2); 
+    ylim([0 0.2]);
+    
+    if i == 3
+%         leg = legend(h,{'Historical-Historical','Historical-Future','Future-Historical', ...
+%                         'Future-Future'},'FontSize',14,'FontWeight','bold');
+%         leg = legend('Historical_Historical', 'Future_Historical', 'Future_Future','Future_Future - Future_Historical',...
+%                      'FontSize',14,'FontWeight','bold','Interpreter','none');
+        leg.Location = 'southwest';
+    end
+    if i == 1
+        tt = ['ZWT < ' num2str(levels(i)) ' [m]'];
+    elseif i == 6
+        tt = ['ZWT > ' num2str(levels(i-1)) ' [m]'];
+    else
+        tt = [num2str(levels(i-1)) '<= ZWT < ' num2str(levels(i)) ' [m]'];
+    end
+    add_title(gca,tt);
+    pos = get(gca,'Position');
 
-    save('../data/deltaamtr.mat','foc_amtr1_2deg','foc_amtr2_2deg','foc_amtr3_2deg', ...
-                                 'lon','lat');
+    slope1 = round(slope1*1000,2); p1 = round(p1,3);
+    slope2 = round(slope2*1000,2); p2 = round(p2,3);
+    slope3 = round(slope3*1000,2); p3 = round(p3,3);
+    slope4 = round(slope4*1000,2); p4 = round(p4,3);
+    
+    dim1 = [pos(1) pos(2)+pos(4)-0.1 0.1 0.1];
+    str1 = ['Sen slope = ' num2str(slope1) ' [mm/year], p-value = ', num2str(p1)];
+    t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+    t1.FontSize = 14; t1.FontWeight = 'bold'; t1.Color = 'k';
+    
+    dim3 = [pos(1) pos(2)+pos(4)-0.125 0.1 0.1];
+    str3 = ['Sen slope = ' num2str(slope3) ' [mm/year], p-value = ', num2str(p3)];
+    t3 = annotation('textbox',dim3,'String',str3,'FitBoxToText','on','EdgeColor','none');
+    t3.FontSize = 14; t3.FontWeight = 'bold'; t3.Color = 'b';
+    
+    dim4 = [pos(1) pos(2)+pos(4)-0.150 0.1 0.1];
+    str4 = ['Sen slope = ' num2str(slope4) ' [mm/year], p-value = ', num2str(p4)];
+    t4 = annotation('textbox',dim4,'String',str4,'FitBoxToText','on','EdgeColor','none');
+    t4.FontSize = 14; t4.FontWeight = 'bold'; t4.Color = 'r';
+    
+    figure(200);
+    subplot_tight(2,3,i,[0.06 0.04]);hold on; grid on;
+    plot(1971:2005,zwt_ctl_ctl,'k-','LineWidth',2);
+    plot(2016:2050,zwt_fut_ctl,'b--','LineWidth',2); 
+    add_title(gca,tt);
+    pos = get(gca,'Position');
+    
+    if i == 3
+%         leg = legend('Historical-Historical','Historical-Future','Future-Historical', ...
+%                      'Future-Future','FontSize',14,'FontWeight','bold');
+        leg = legend('Historical_Historical', 'Future_Historical',...
+                     'FontSize',14,'FontWeight','bold','Interpreter','none');
+        leg.Location = 'southwest';
+    end
+    
+    dim1 = [pos(1) pos(2)+pos(4)-0.1 0.1 0.1];
+    str1 = ['Sen slope = ' num2str(slope1) ' [mm/year], p-value = ', num2str(p1)];
+    t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+    t1.FontSize = 14; t1.FontWeight = 'bold'; t1.Color = 'k';
+
+    dim2 = [pos(1) pos(2)+pos(4)-0.125 0.1 0.1];
+    str2 = ['Sen slope = ' num2str(slope3) ' [mm/year], p-value = ', num2str(p3)];
+    t2 = annotation('textbox',dim2,'String',str2,'FitBoxToText','on','EdgeColor','none');
+    t2.FontSize = 14; t2.FontWeight = 'bold'; t2.Color = 'b';
 end
 
-foc_amtr1_2deg = foc_amtr1_2deg.*86400;
-foc_amtr2_2deg = foc_amtr2_2deg.*86400;
-foc_amtr3_2deg = foc_amtr3_2deg.*86400;
+dx = 5; dy = 5;
 
-plot_exs3(lon,lat,deltazwt1_2deg, deltazwt2_2deg, deltazwt3_2deg, -0.5, 0.5);
-plot_exs3(lon,lat,foc_amtr1_2deg,foc_amtr2_2deg,foc_amtr3_2deg,-5,5);
+figure(101); set(gcf,'Position',[10 10 1200 1000]);
+figure(102); set(gcf,'Position',[10 10 1200 1000]);
 
-% if exist('../data/deltazwt2.mat','file')
-%     load('../data/deltazwt2.mat');
-% else
-%     for i = 1 : length(exs2)
-%         disp(['Read ' exs2{i}]);
-%         zwt(1).(tag2{i}) = load(['../data/outputs/' exs2{i} '_zwt_annual.mat']);
-%     end
-% 
-%     deltazwt1  = nanmean(zwt.ctl_025.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-%     deltazwt2  = nanmean(zwt.ctl_050.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-%     deltazwt3  = nanmean(zwt.ctl_075.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-%     deltazwt4  = nanmean(zwt.ctl_100.zwtyr,2) - nanmean(zwt.ctl_ctl.zwtyr,2);
-%     
-%     [~,~,deltazwt1_2deg]     = upscale_data(merit_x,merit_y,merit_frac,deltazwt1,2);
-%     [~,~,deltazwt2_2deg]     = upscale_data(merit_x,merit_y,merit_frac,deltazwt2,2);
-%     [~,~,deltazwt3_2deg]     = upscale_data(merit_x,merit_y,merit_frac,deltazwt3,2);
-%     [lon,lat,deltazwt4_2deg] = upscale_data(merit_x,merit_y,merit_frac,deltazwt4,2);
-% 
-%     save('../data/deltazwt2.mat','deltazwt1_2deg','deltazwt2_2deg', ...
-%                                  'deltazwt3_2deg','deltazwt4_2deg');
-% end
-% 
-% plot_exs4(lon,lat,deltazwt1_2deg, deltazwt2_2deg, deltazwt3_2deg, deltazwt4_2deg,...
-%           -0.5, 0.5);
+for i = 1 : length(cities)
+    figure(101);
+    subplot(4,5,i);
+    x  = cities(i).X; y = cities(i).Y;
+    xb = [x - dx/2; x + dx/2; x + dx/2; x - dx/2; x - dx/2];
+    yb = [y - dy/2; y - dy/2; y + dy/2; y + dy/2; y - dy/2];
+    ind = inpoly2([merit_x merit_y],[xb yb]);
+    
+    tmp0 = zwt.ctl_ctl.zwtyr(ind,1:35).*1000; 
+    tmp1 = zwt.fut_fut.zwtyr(ind,:).*1000;% [mm]
+    tmp2 = zwt.fut_ctl.zwtyr(ind,:).*1000;% [mm]
+    tmp3 = zwt.ctl_fut.zwtyr(ind,1:35).*1000;% [mm] 
+    tmp0 = nanmean(tmp0,2);
+    tmp3 = nanmean(tmp3,2);
+    
+    zwt_ctl_ctl = -nansum(tmp0.*area(ind),1)./nansum(area(ind));
+    zwt_fut_fut = -nansum(tmp1.*area(ind),1)./nansum(area(ind));
+    zwt_fut_ctl = -nansum(tmp2.*area(ind),1)./nansum(area(ind));
+    zwt_ctl_fut = -nansum(tmp3.*area(ind),1)./nansum(area(ind));
+    
+    [z1, trend1, ~, p1] = mk_test(zwt_fut_fut');
+    [z2, trend2, ~, p2] = mk_test(zwt_fut_ctl');
+    [slope1, intercept1] = sens_slope(zwt_fut_fut');
+    [slope2, intercept1] = sens_slope(zwt_fut_ctl');
 
-function plot_exs3(lon,lat,a,b,c,cmin,cmax)
-    figure; set(gcf,'Position',[10 10 800 1200]);
-    subplot(3,1,1);
-    imAlpha = ones(size(a));
-    imAlpha(isnan(a)) = 0;
-    imagesc([lon(1,1),lon(end,end)],[lat(1,1),lat(end,end)],a,'AlphaData',imAlpha); 
-    colormap(blue2red(121)); colorbar; hold on; caxis([cmin cmax]); 
-    set(gca,'YDir','normal');
-    ylim([-60 90]);
-    subplot(3,1,2);
-    imAlpha = ones(size(b));
-    imAlpha(isnan(b)) = 0;
-    imagesc([lon(1,1),lon(end,end)],[lat(1,1),lat(end,end)],b,'AlphaData',imAlpha); 
-    colormap(blue2red(121)); colorbar; hold on; caxis([cmin cmax]); 
-    set(gca,'YDir','normal');
-    ylim([-60 90]);
-    subplot(3,1,3);
-    imAlpha = ones(size(c));
-    imAlpha(isnan(c)) = 0;
-    imagesc([lon(1,1),lon(end,end)],[lat(1,1),lat(end,end)],c,'AlphaData',imAlpha); 
-    colormap(blue2red(121)); colorbar; hold on; caxis([cmin cmax]); 
-    set(gca,'YDir','normal');
-    ylim([-60 90]);
+    plot(2016:2050,zwt_fut_fut-zwt_fut_ctl,'r-','LineWidth',1); hold on; grid on;
+    plot(2016:2050,zwt_fut_ctl-nanmean(zwt_ctl_ctl),'b-','LineWidth',1);
+    plot(2016:2050,zwt_fut_fut-nanmean(zwt_ctl_ctl),'k-','LineWidth',1);
+    %plot(2016:2050,zwt_fut_fut-zwt_fut_ctl + (zwt_fut_fut-zwt_ctl_fut),'k--','LineWidth',2);
+    title(cities(i).Name);
+    
+    num1 = nanmean(zwt_fut_fut)-nanmean(zwt_fut_ctl);
+    num2 = nanmean(zwt_fut_ctl)-nanmean(zwt_ctl_ctl);
+    num3 = nanmean(zwt_fut_fut)-nanmean(zwt_ctl_ctl);
+    num1 = round(num1,1); num2 = round(num2,1); num3 = round(num3,1);
+    
+    pos = get(gca,'Position');
+    dim1 = [pos(1) pos(2)+pos(4)-0.05 0.05 0.05];
+    str1 = [num2str(num1) ' [mm]'];
+    t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+    t1.FontSize = 10; t1.FontWeight = 'bold'; t1.Color = 'r';
+    
+    dim1 = [pos(1) pos(2)+pos(4)-0.065 0.05 0.05];
+    str1 = [num2str(num2) ' [mm]'];
+    t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+    t1.FontSize = 10; t1.FontWeight = 'bold'; t1.Color = 'b';
+    
+    dim1 = [pos(1) pos(2)+pos(4)-0.080 0.05 0.05];
+    str1 = [num2str(num3) ' [mm]'];
+    t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+    t1.FontSize = 10; t1.FontWeight = 'bold'; t1.Color = 'k';
+    figure(100);
+    if i == 1
+        plot(coastlon,coastlat,'k-','LineWidth',1.5); hold on;
+    end
+    plot(cities(i).X , cities(i).Y,'gd','LineWidth',2);
+    plot(xb,yb,'r-','LineWidth',1);
+    text(cities(i).X-2, cities(i).Y+3,cities(i).Name,'Color','b');
+    xlim([-100 150]);
+    ylim([-20 60]);
+
+    figure(102);
+    subplot(4,5,i);
+    patch(xv(:,ind),yv(:,ind),nanmean(tmp1,2) - nanmean(tmp2,2),'LineStyle','none'); hold on;
+    caxis([-250 250]); colormap(gca,blue2red(121));
+    plot(cities(i).X , cities(i).Y,'kd','LineWidth',2); 
+    %plot(coastlon,coastlat,'r-','LineWidth',1);
+    %plot(merit_x(ind), merit_y(ind),'g.');
+    xlim([min(xb) max(xb)]); 
+    ylim([min(yb) max(yb)]); 
+    title(cities(i).Name);
+    %legend('Fut atm + Fut SSH','Fut atm + CTL SSH','FontSize',14,'FontWeight','bold')
+    %add_title(gca,'Global coastline ZWT [m]');
+%     pos = get(gca,'Position');
+% 
+%     slope1 = round(slope1*1000,3); p1 = round(p1,3);
+%     slope2 = round(slope2*1000,3); p2 = round(p2,3);
+%     dim1 = [pos(1) pos(2)+pos(4)-0.1 0.1 0.1];
+%     str1 = ['Sen slope = ' num2str(slope1) ' [mm/year], p-value = ', num2str(p1)];
+%     t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+%     t1.FontSize = 14; t1.FontWeight = 'bold'; t1.Color = 'r';
+% 
+%     dim2 = [pos(1) pos(2)+pos(4)-0.15 0.1 0.1];
+%     str2 = ['Sen slope = ' num2str(slope2) ' [mm/year], p-value = ', num2str(p2)];
+%     t2 = annotation('textbox',dim2,'String',str2,'FitBoxToText','on','EdgeColor','none');
+%     t2.FontSize = 14; t2.FontWeight = 'bold'; t2.Color = 'b';
+    
 end
 
-function plot_exs4(lon,lat,a,b,c,d,cmin,cmax)
-    figure; set(gcf,'Position',[10 10 800 1200]);
-    subplot(2,2,1);
-    imAlpha = ones(size(a));
-    imAlpha(isnan(a)) = 0;
-    imagesc([lon(1,1),lon(end,end)],[lat(1,1),lat(end,end)],a,'AlphaData',imAlpha); 
-    colormap(blue2red(121)); colorbar; hold on; caxis([cmin cmax]); 
-    set(gca,'YDir','normal');
-    ylim([-60 90]);
-    subplot(2,2,2);
-    imAlpha = ones(size(b));
-    imAlpha(isnan(b)) = 0;
-    imagesc([lon(1,1),lon(end,end)],[lat(1,1),lat(end,end)],b,'AlphaData',imAlpha); 
-    colormap(blue2red(121)); colorbar; hold on; caxis([cmin cmax]); 
-    set(gca,'YDir','normal');
-    ylim([-60 90]);
-    subplot(2,2,3);
-    imAlpha = ones(size(c));
-    imAlpha(isnan(c)) = 0;
-    imagesc([lon(1,1),lon(end,end)],[lat(1,1),lat(end,end)],c,'AlphaData',imAlpha); 
-    colormap(blue2red(121)); colorbar; hold on; caxis([cmin cmax]); 
-    set(gca,'YDir','normal');
-    ylim([-60 90]);
-    subplot(2,2,4);
-    imAlpha = ones(size(d));
-    imAlpha(isnan(d)) = 0;
-    imagesc([lon(1,1),lon(end,end)],[lat(1,1),lat(end,end)],d,'AlphaData',imAlpha); 
-    colormap(blue2red(121)); colorbar; hold on; caxis([cmin cmax]); 
-    set(gca,'YDir','normal');
-    ylim([-60 90]);
+for i = 1 : length(exs1)
+    disp(['Read ' exs1{i}]);
+    amr(1).(tag1{i}) = load(['../data/outputs/' exs1{i} '_AMR.mat']);
 end
 
-% cmap = getPyPlot_cMap('BuPu');
-% X = [nanmean(CTL1.zwtyr,2) nanmean(FUT1.zwtyr,2)];
-% figure;
-% hist3(X,'CdataMode','auto','Nbins',[200,200],'LineStyle','none');
-% view(2);colormap(cmap);colorbar; ylim([0 80]); xlim([0 80]); caxis([0 50]);
-% colorbar;
-% hold on;
-% xlabel('CTL');
-% ylabel('FUT');
+foc_amtr1 = prctile(amr.ctl_fut.AMTR,99,2) ./ prctile(amr.ctl_ctl.AMTR,99,2);
+foc_amtr2 = prctile(amr.fut_ctl.AMTR,99,2) ./ prctile(amr.ctl_ctl.AMTR,99,2);
+foc_amtr3 = prctile(amr.fut_fut.AMTR,99,2) ./ prctile(amr.ctl_ctl.AMTR,99,2);
+
+foc_amtr1(gl_mask | ind_small) = [];
+foc_amtr2(gl_mask | ind_small) = [];
+foc_amtr3(gl_mask | ind_small) = [];
+
+foc_amtr1_1deg = mapping_1d_to_2d(foc_amtr1,mapping,map_1dto2d,size(lon));
+foc_amtr2_1deg = mapping_1d_to_2d(foc_amtr2,mapping,map_1dto2d,size(lon));
+foc_amtr3_1deg = mapping_1d_to_2d(foc_amtr3,mapping,map_1dto2d,size(lon));
+
+plot_exs3(lon,lat,foc_amtr1_1deg, foc_amtr2_1deg, foc_amtr3_1deg, 0.5, 1.5, labels);
+
+for i = 1 : length(exs1)
+    disp(['Read ' exs1{i}]);
+    rst(1).(tag1{i}) = load(['../data/outputs/' exs1{i} '_results_annual.mat']);
+end
+rst.ctl_ctl.qrunoff(gl_mask | ind_small,:) = [];
+rst.fut_fut.qrunoff(gl_mask | ind_small,:) = [];
+rst.fut_ctl.qrunoff(gl_mask | ind_small,:) = [];
+rst.ctl_fut.qrunoff(gl_mask | ind_small,:) = [];
+
+focq1 = nanmean(rst.ctl_fut.qrunoff(:,1:35),2) ./ nanmean(rst.ctl_ctl.qrunoff(:,1:35),2);
+focq2 = nanmean(rst.fut_ctl.qrunoff(:,1:35),2) ./ nanmean(rst.ctl_ctl.qrunoff(:,1:35),2);
+focq3 = nanmean(rst.fut_fut.qrunoff(:,1:35),2) ./ nanmean(rst.ctl_ctl.qrunoff(:,1:35),2);
+
+focq1_1deg = mapping_1d_to_2d(focq1,mapping,map_1dto2d,size(lon));
+focq2_1deg = mapping_1d_to_2d(focq2,mapping,map_1dto2d,size(lon));
+focq3_1deg = mapping_1d_to_2d(focq3,mapping,map_1dto2d,size(lon));
+
+plot_exs3(lon,lat,focq1_1deg, focq2_1deg, focq3_1deg, 0.5, 1.5, labels);
+
+figure(302); set(gcf,'Position',[10 10 1200 1000]);
+for i = 1 : length(cities)
+    x  = cities(i).X; y = cities(i).Y;
+    xb = [x - dx/2; x + dx/2; x + dx/2; x - dx/2; x - dx/2];
+    yb = [y - dy/2; y - dy/2; y + dy/2; y + dy/2; y - dy/2];
+    ind = inpoly2([merit_x merit_y],[xb yb]);
+    
+    tmp0 = rst.ctl_ctl.qrunoff(ind,1:35).*86400;
+    tmp1 = rst.fut_fut.qrunoff(ind,:).*86400;
+    tmp2 = rst.fut_ctl.qrunoff(ind,:).*86400;
+    tmp3 = rst.ctl_fut.qrunoff(ind,1:35).*86400;
+    
+    qt_ctl_ctl = nansum(tmp0.*area(ind),1)./nansum(area(ind));
+    qt_fut_fut = nansum(tmp1.*area(ind),1)./nansum(area(ind));
+    qt_fut_ctl = nansum(tmp2.*area(ind),1)./nansum(area(ind));
+    qt_ctl_fut = nansum(tmp3.*area(ind),1)./nansum(area(ind));
+    
+    figure(301);
+    subplot(4,5,i);
+    patch(xv(:,ind),yv(:,ind),nanmean(tmp3,2) ./ nanmean(tmp0,2),'LineStyle','none'); hold on;
+    caxis([0.5 1.5]); colormap(gca,blue2red(121));
+    plot(cities(i).X , cities(i).Y,'kd','LineWidth',2); 
+    xlim([min(xb) max(xb)]); 
+    ylim([min(yb) max(yb)]); 
+    title(cities(i).Name);
+    
+    tmp0 = rst.ctl_ctl.qover(ind,1:35).*86400;
+    tmp1 = rst.fut_fut.qover(ind,:).*86400;
+    tmp2 = rst.fut_ctl.qover(ind,:).*86400;
+    tmp3 = rst.ctl_fut.qover(ind,1:35).*86400;
+    
+    qo_ctl_ctl = nansum(tmp0.*area(ind),1)./nansum(area(ind));
+    qo_fut_fut = nansum(tmp1.*area(ind),1)./nansum(area(ind));
+    qo_fut_ctl = nansum(tmp2.*area(ind),1)./nansum(area(ind));
+    qo_ctl_fut = nansum(tmp3.*area(ind),1)./nansum(area(ind));
+    
+    figure(302);
+    subplot(4,5,i);
+    plot(2016:2050,(qt_fut_fut-qt_fut_ctl)./nanmean(qt_ctl_ctl).*100,'r-','LineWidth',1); hold on;
+    %plot(2016:2050,(qo_fut_fut-qo_fut_ctl)./nanmean(qo_ctl_ctl).*100,'b-','LineWidth',2);
+    plot(2016:2050,(qt_fut_ctl-nanmean(qt_ctl_ctl))./nanmean(qt_ctl_ctl).*100,'b-','LineWidth',1);
+    plot(2016:2050,(qt_fut_fut-nanmean(qt_ctl_ctl))./nanmean(qt_ctl_ctl).*100,'k-','LineWidth',1);
+    title(cities(i).Name);
+    
+    num1 = (nanmean(qt_ctl_fut)-nanmean(qt_ctl_ctl))./nanmean(qt_ctl_ctl).*100;
+    num2 = (nanmean(qt_fut_ctl)-nanmean(qt_ctl_ctl))./nanmean(qt_ctl_ctl).*100;
+    num3 = (nanmean(qt_fut_fut)-nanmean(qt_ctl_ctl))./nanmean(qt_ctl_ctl).*100;
+    num1 = round(num1,1); num2 = round(num2,1); num3 = round(num3,1);
+    
+    pos = get(gca,'Position');
+    dim1 = [pos(1) pos(2)+pos(4)-0.05 0.05 0.05];
+    str1 = [num2str(num1) ' [%]'];
+    t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+    t1.FontSize = 10; t1.FontWeight = 'bold'; t1.Color = 'r';
+    
+    dim1 = [pos(1) pos(2)+pos(4)-0.065 0.05 0.05];
+    str1 = [num2str(num2) ' [%]'];
+    t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+    t1.FontSize = 10; t1.FontWeight = 'bold'; t1.Color = 'b';
+    
+    dim1 = [pos(1) pos(2)+pos(4)-0.080 0.05 0.05];
+    str1 = [num2str(num3) ' [%]'];
+    t1 = annotation('textbox',dim1,'String',str1,'FitBoxToText','on','EdgeColor','none');
+    t1.FontSize = 10; t1.FontWeight = 'bold'; t1.Color = 'k';
+end
