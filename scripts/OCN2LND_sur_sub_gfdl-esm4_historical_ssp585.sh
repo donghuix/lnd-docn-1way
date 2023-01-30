@@ -51,9 +51,9 @@ cd ${CASE_DIR}/${CASE_NAME}
 ./xmlchange PIO_BUFFER_SIZE_LIMIT=67108864
 ./xmlchange PIO_TYPENAME_OCN=netcdf # pnetcdf doesn't support NETCDF4
 ./xmlchange NTASKS=600
-./xmlchange STOP_N=64,STOP_OPTION=nyears
+./xmlchange STOP_N=35,STOP_OPTION=nyears
 ./xmlchange JOB_WALLCLOCK_TIME=24:00:00
-./xmlchange REST_N=32,REST_OPTION=nyears
+#./xmlchange REST_N=32,REST_OPTION=nyears
 ./xmlchange JOB_QUEUE="slurm"
 
 ./preview_namelists
@@ -63,12 +63,13 @@ ocn_lnd_one_way = .true.
 EOF
 cat >> user_nl_elm << EOF
 fsurdat = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_calibrated_c221109.nc'
+flndtopo = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_fd2.5_c221109.nc'
 finidat = '/compyfs/xudo627/e3sm_scratch/OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419/run/OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419.elm.r.2015-01-01-00000.nc'
-hist_fincl2='QRUNOFF','QOVER','QDRAI'
+hist_fincl2='QRUNOFF','QOVER','QDRAI','ZWT','FSAT'
 hist_nhtfrq = 0,-24
 hist_mfilt = 1,1
 EOF
-
+#finidat = '/compyfs/xudo627/e3sm_scratch/Calibration11_OCN2LND_sur_sub_coupling_463c45d.2023-01-13-102340/run/Calibration11_OCN2LND_sur_sub_coupling_463c45d.2023-01-13-102340.elm.r.2079-01-01-00000.nc'
 #finidat = '/compyfs/xudo627/e3sm_scratch/Calibration09_OCN2LND_sur_sub_coupling_22493fc.2022-11-28-144612/run/Calibration09_OCN2LND_sur_sub_coupling_22493fc.2022-11-28-144612.elm.r.2079-01-01-00000.nc'
 
 cat >> user_nl_datm << EOF

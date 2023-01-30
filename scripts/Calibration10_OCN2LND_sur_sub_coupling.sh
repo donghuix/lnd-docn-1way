@@ -11,7 +11,7 @@ CASE_DIR=${SRC_DIR}/cime/scripts
 cd ${SRC_DIR} # make sure get correct hash of e3sm
 
 GIT_HASH=`git log -n 1 --format=%h`
-CASE_NAME=Calibration06_OCN2LND_sur_sub_coupling_${GIT_HASH}.`date "+%Y-%m-%d-%H%M%S"`
+CASE_NAME=Calibration10_OCN2LND_sur_sub_coupling_${GIT_HASH}.`date "+%Y-%m-%d-%H%M%S"`
 
 cd ${SRC_DIR}/cime/scripts
 
@@ -58,7 +58,7 @@ cat >> user_nl_cpl << EOF
 ocn_lnd_one_way = .true.
 EOF
 cat >> user_nl_elm << EOF
-fsurdat = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_fd5.0_c221109.nc'
+fsurdat = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_fd0.4_c221109.nc'
 flndtopo = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_fd2.5_c221109.nc'
 EOF
 

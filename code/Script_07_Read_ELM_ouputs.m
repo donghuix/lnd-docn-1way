@@ -13,11 +13,19 @@ if strcmp(type,'cal')
             'Calibration06_OCN2LND_sur_sub_coupling_22493fc.2022-11-16-104615', ...
             'Calibration07_OCN2LND_sur_sub_coupling_22493fc.2022-11-18-140955', ...
             'Calibration08_OCN2LND_sur_sub_coupling_22493fc.2022-11-21-095422', ...
-            'Calibration09_OCN2LND_sur_sub_coupling_22493fc.2022-11-28-144612'};
-    tags    = {'fd=2.5','fd=0.1','fd=0.2','fd=0.5','fd=1.0','fd=5.0','fd=10.0','fd=20','fd=cal'};
+            'Calibration09_OCN2LND_sur_sub_coupling_463c45d.2023-01-04-101507', ...
+            'Calibration10_OCN2LND_sur_sub_coupling_463c45d.2023-01-04-103035', ...
+            'Calibration11_OCN2LND_sur_sub_coupling_463c45d.2023-01-13-102340'};
+        
+    tags    = {'fd=2.5','fd=0.1','fd=0.2','fd=0.5','fd=1.0','fd=5.0','fd=10.0', ...
+               'fd=20','fd=0.3','fd=0.4','fd=cal'};
+    
+%     runs = runs(1:6);
+%     tags = tags(1:6);
+    
 elseif strcmp(type,'sim')
     
-    runs = {'OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419',        ...
+    runs = {'OCN2LND_sur_sub_gfdl-esm4_historical_463c45d.2023-01-27-112749', ...%'OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419',        ...
             'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_39b1f87.2022-12-17-153813', ...
             'OCN2LND_sur_sub_gfdl-esm4_ssp585_historical_39b1f87.2022-12-17-104600', ...
             'OCN2LND_sur_sub_gfdl-esm4_ssp585_39b1f87.2022-12-10-165041',            ...
@@ -26,7 +34,10 @@ elseif strcmp(type,'sim')
             'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_SLR0.75_39b1f87.2022-12-20-084505', ...
             'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_SLR1.00_39b1f87.2022-12-20-085815'};
         
-    tags = {'ctl-ctl','ctl-fut','fut-ctl','fut-fut','ctl-025','ctl-050','ctl-075','ctl-100'}; 
+    tags = {'ctl-ctl','ctl-fut','fut-ctl','fut-fut','ctl-025','ctl-050','ctl-075','ctl-100'};
+    
+    runs = runs(1:4);
+    tags = tags(1:4);
     
 end
 
@@ -124,6 +135,8 @@ for i = 1 : length(runs)
     
     end
     
+    if strcmp(type,'sim')
+        
     if ~exist(['../data/outputs/' tags{i} '_AMR.mat'],'file')
         % Read daily outputs
         if i == 1 || i == 2 || i > 4
@@ -132,24 +145,36 @@ for i = 1 : length(runs)
             yr1 = 2016; yr2 = 2050;
         end
 
-        AMTR = NaN(84300,yr2-yr1+1);
-        AMDR = NaN(84300,yr2-yr1+1);
+        AMTR  = NaN(84300,yr2-yr1+1); % Annual Maximum Total Runoff
+        AMDR  = NaN(84300,yr2-yr1+1); % Annual Maximum Drainage Runoff
+        AMZWT = NaN(84300,yr2-yr1+1); % Annual Maximum ZWT
+        AMSF  = NaN(84300,yr2-yr1+1); % Annual Maximum Saturation Fraction
+        %SF30  = NaN(84300,yr2-yr1+1); % 30-days daily Saturation Fraction ceterned at AMSF
+        
         for yr = yr1 : yr2
             files = dir([rundir '*.elm.h1.' num2str(yr) '*.nc']);
             assert(length(files) == 365 || length(files) == 366);
             tmp1 = NaN(84300,length(files));
             tmp2 = NaN(84300,length(files));
+            tmp3 = NaN(84300,length(files));
+            tmp4 = NaN(84300,length(files));
             for ii = 1 : length(files)
                 filename = fullfile(files(ii).folder,files(ii).name);
                 disp(filename);
                 tmp1(:,ii) = ncread(filename,'QRUNOFF');
                 tmp2(:,ii) = ncread(filename,'QDRAI');
+                tmp3(:,ii) = ncread(filename,'ZWT');
+                tmp4(:,ii) = ncread(filename,'FSAT');
             end
             AMTR(:,yr-yr1+1) = max(tmp1,[],2);
             AMDR(:,yr-yr1+1) = max(tmp2,[],2);
+            AMZWT(:,yr-yr1+1)= max(tmp3,[],2);
+            [Is,AMSF(:,yr-yr1+1)] = max(tmp4,[],2);
         end
 
-        save(['../data/outputs/' tags{i} '_AMR.mat'],'AMTR','AMDR');
+        save(['../data/outputs/' tags{i} '_AMR.mat'],'AMTR','AMDR','AMZWT','AMSF');
+    end
+    
     end
     
 end

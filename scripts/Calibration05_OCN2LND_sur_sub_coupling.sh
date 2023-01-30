@@ -59,6 +59,7 @@ ocn_lnd_one_way = .true.
 EOF
 cat >> user_nl_elm << EOF
 fsurdat = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_fd1.0_c221109.nc'
+flndtopo = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_fd2.5_c221109.nc'
 EOF
 
 ./case.setup

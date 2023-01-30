@@ -8,7 +8,7 @@
 To get started, type doc.
 For product information, visit www.mathworks.com.
  
->> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> GFDL-CM4C192-SST, year: 2016, month: 1
+>> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> >> GFDL-CM4C192-SST, year: 2016, month: 1
 GFDL-CM4C192-SST, year: 2016, month: 2
 GFDL-CM4C192-SST, year: 2016, month: 3
 GFDL-CM4C192-SST, year: 2016, month: 4
@@ -428,5 +428,8 @@ GFDL-CM4C192-SST, year: 2050, month: 9
 GFDL-CM4C192-SST, year: 2050, month: 10
 GFDL-CM4C192-SST, year: 2050, month: 11
 GFDL-CM4C192-SST, year: 2050, month: 12
+GFDL-CM4C192-SST, year: 2050, month: 12 is not integer!!!
+GFDL-CM4C192-SST, year: 2050, month: 12 is not integer!!!
+GFDL-CM4C192-SST, year: 2050, month: 12 is not integer!!!
 GFDL-CM4C192-SST, year: 2050, month: 12 is not integer!!!
 >> 
