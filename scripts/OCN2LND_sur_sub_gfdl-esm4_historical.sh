@@ -38,22 +38,22 @@ cd ${CASE_DIR}/${CASE_NAME}
 ./xmlchange DOCN_GTSM_FILENAME=domain_global_coastline_merit_90m.nc
 
 # Setup GTSM inundation and SLR forcings
-./xmlchange --file env_run.xml --id SSTICE_YEAR_START     --val 1971
-./xmlchange --file env_run.xml --id SSTICE_YEAR_END       --val 2005
-./xmlchange --file env_run.xml --id SSTICE_YEAR_ALIGN     --val 1971
+./xmlchange --file env_run.xml --id SSTICE_YEAR_START     --val 1980
+./xmlchange --file env_run.xml --id SSTICE_YEAR_END       --val 2014
+./xmlchange --file env_run.xml --id SSTICE_YEAR_ALIGN     --val 1980
 
-./xmlchange --file env_run.xml --id DATM_CLMNCEP_YR_START --val 1971
-./xmlchange --file env_run.xml --id DATM_CLMNCEP_YR_END   --val 2005
-./xmlchange --file env_run.xml --id DATM_CLMNCEP_YR_ALIGN --val 1971
+./xmlchange --file env_run.xml --id DATM_CLMNCEP_YR_START --val 1980
+./xmlchange --file env_run.xml --id DATM_CLMNCEP_YR_END   --val 2014
+./xmlchange --file env_run.xml --id DATM_CLMNCEP_YR_ALIGN --val 1980
 
-./xmlchange --file env_run.xml --id RUN_STARTDATE         --val 1971-01-01
+./xmlchange --file env_run.xml --id RUN_STARTDATE         --val 1980-01-01
 
 ./xmlchange PIO_BUFFER_SIZE_LIMIT=67108864
 ./xmlchange PIO_TYPENAME_OCN=netcdf # pnetcdf doesn't support NETCDF4
 ./xmlchange NTASKS=600
 ./xmlchange STOP_N=35,STOP_OPTION=nyears
 ./xmlchange JOB_WALLCLOCK_TIME=24:00:00
-./xmlchange REST_N=32,REST_OPTION=nyears
+#./xmlchange REST_N=32,REST_OPTION=nyears
 ./xmlchange JOB_QUEUE="slurm"
 
 ./preview_namelists
@@ -64,11 +64,12 @@ EOF
 cat >> user_nl_elm << EOF
 fsurdat = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_calibrated_c221109.nc'
 flndtopo = '/compyfs/xudo627/lnd-docn-1way/inputdata/surfdata_global_coastline_merit_90m_fd2.5_c221109.nc'
-finidat = '/compyfs/xudo627/e3sm_scratch/OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419/run/OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419.elm.r.2015-01-01-00000.nc'
+finidat = '/compyfs/xudo627/e3sm_scratch/OCN2LND_sur_sub_gfdl-esm4_historical_spinup_463c45d.2023-02-11-220549/run/OCN2LND_sur_sub_gfdl-esm4_historical_spinup_463c45d.2023-02-11-220549.elm.r.1980-01-01-00000.nc'
 hist_fincl2='QRUNOFF','QOVER','QDRAI','ZWT','FSAT'
 hist_nhtfrq = 0,-24
 hist_mfilt = 1,1
 EOF
+#finidat = '/compyfs/xudo627/e3sm_scratch/OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419/run/OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419.elm.r.2015-01-01-00000.nc'
 #finidat = '/compyfs/xudo627/e3sm_scratch/Calibration11_OCN2LND_sur_sub_coupling_463c45d.2023-01-13-102340/run/Calibration11_OCN2LND_sur_sub_coupling_463c45d.2023-01-13-102340.elm.r.2079-01-01-00000.nc'
 #finidat = '/compyfs/xudo627/e3sm_scratch/Calibration09_OCN2LND_sur_sub_coupling_22493fc.2022-11-28-144612/run/Calibration09_OCN2LND_sur_sub_coupling_22493fc.2022-11-28-144612.elm.r.2079-01-01-00000.nc'
 
@@ -82,7 +83,7 @@ EOF
 # **************************************************************************** #
 # ---------------------------------------------------------------------------- #
 files1=""
-for i in {1971..2014}
+for i in {1980..2014}
 do
    for j in {1..12}
    do
@@ -109,13 +110,13 @@ chmod +rw ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Precip
 perl -w -i -p -e "s@/compyfs/inputdata/atm/datm7/atm_forcing.datm7.GSWP3.0.5d.v1.c170516/Precip@/compyfs/icom/xudo627/lnd-rof-2way-fut/data/forcings/${FORCING}/${SCENARIO}/Prec@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Precip
 perl -w -i -p -e "s@/compyfs/inputdata/atm/datm7/atm_forcing.datm7.GSWP3.0.5d.v1.c170516@/compyfs/xudo627/inputdata@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Precip
 perl -w -i -p -e "s@domain.lnd.360x720_gswp3.0v1.c170606.nc@domain.lnd.360x720_isimip.3b.c211109.nc@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Precip
-perl -w -i -p -e "s@clmforc.GSWP3.c2011.0.5x0.5.Prec.1971-01.nc@${files1}@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Precip
+perl -w -i -p -e "s@clmforc.GSWP3.c2011.0.5x0.5.Prec.1980-01.nc@${files1}@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Precip
 sed -i '/ZBOT/d' ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Precip
 # ---------------------------------------------------------------------------- #
 # **************************************************************************** #
 # ---------------------------------------------------------------------------- #
 files2=""
-for i in {1971..2014}
+for i in {1980..2014}
 do
    for j in {1..12}
    do
@@ -142,13 +143,13 @@ chmod +rw ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Solar
 perl -w -i -p -e "s@/compyfs/inputdata/atm/datm7/atm_forcing.datm7.GSWP3.0.5d.v1.c170516/Solar@/compyfs/icom/xudo627/lnd-rof-2way-fut/data/forcings/${FORCING}/${SCENARIO}/Solr@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Solar
 perl -w -i -p -e "s@/compyfs/inputdata/atm/datm7/atm_forcing.datm7.GSWP3.0.5d.v1.c170516@/compyfs/xudo627/inputdata@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Solar
 perl -w -i -p -e "s@domain.lnd.360x720_gswp3.0v1.c170606.nc@domain.lnd.360x720_isimip.3b.c211109.nc@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Solar
-perl -w -i -p -e "s@clmforc.GSWP3.c2011.0.5x0.5.Solr.1971-01.nc@${files2}@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Solar
+perl -w -i -p -e "s@clmforc.GSWP3.c2011.0.5x0.5.Solr.1980-01.nc@${files2}@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Solar
 sed -i '/ZBOT/d' ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.Solar
 # ---------------------------------------------------------------------------- #
 # **************************************************************************** #
 # ---------------------------------------------------------------------------- #
 files3=""
-for i in {1971..2014}
+for i in {1980..2014}
 do
    for j in {1..12}
    do
@@ -178,7 +179,7 @@ chmod +rw ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.TPQW
 perl -w -i -p -e "s@/compyfs/inputdata/atm/datm7/atm_forcing.datm7.GSWP3.0.5d.v1.c170516/TPHWL@/compyfs/icom/xudo627/lnd-rof-2way-fut/data/forcings/${FORCING}/${SCENARIO}/TPQWL@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.TPQW
 perl -w -i -p -e "s@/compyfs/inputdata/atm/datm7/atm_forcing.datm7.GSWP3.0.5d.v1.c170516@/compyfs/xudo627/inputdata@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.TPQW
 perl -w -i -p -e "s@domain.lnd.360x720_gswp3.0v1.c170606.nc@domain.lnd.360x720_isimip.3b.c211109.nc@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.TPQW
-perl -w -i -p -e "s@clmforc.GSWP3.c2011.0.5x0.5.TPQWL.1971-01.nc@${files3}@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.TPQW
+perl -w -i -p -e "s@clmforc.GSWP3.c2011.0.5x0.5.TPQWL.1980-01.nc@${files3}@" ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.TPQW
 sed -i '/ZBOT/d' ${CASE_DIR}/${CASE_NAME}/user_datm.streams.txt.CLMGSWP3v1.TPQW
 # ---------------------------------------------------------------------------- #
 # **************************************************************************** #

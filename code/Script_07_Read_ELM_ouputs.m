@@ -25,8 +25,8 @@ if strcmp(type,'cal')
     
 elseif strcmp(type,'sim')
     
-    runs = {'OCN2LND_sur_sub_gfdl-esm4_historical_463c45d.2023-01-27-112749', ...%'OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419',        ...
-            'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_39b1f87.2022-12-17-153813', ...
+    runs = {'OCN2LND_sur_sub_gfdl-esm4_historical_463c45d.2023-02-09-224637', ...%'OCN2LND_sur_sub_gfdl-esm4_historical_39b1f87.2022-12-05-220419',        ...
+            'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_463c45d.2023-02-09-230132', ...
             'OCN2LND_sur_sub_gfdl-esm4_ssp585_historical_39b1f87.2022-12-17-104600', ...
             'OCN2LND_sur_sub_gfdl-esm4_ssp585_39b1f87.2022-12-10-165041',            ...
             'OCN2LND_sur_sub_gfdl-esm4_historical_ssp585_SLR0.25_39b1f87.2022-12-19-215706', ...
@@ -65,6 +65,11 @@ for i = 1 : length(runs)
            tmp5  = ncread(filename,'QH2OOCN');
            tmp6  = ncread(filename,'QLND2OCN');
            tmp7  = ncread(filename,'QINFL');
+           tmp8  = ncread(filename,'H2OSOI');
+           tmp8  = tmp8(:,1); % take the surface soil volumitric mositure
+           tmp9  = ncread(filename,'QCHARGE');
+           tmp10 = ncread(filename,'QH2OSFC');
+           tmp11 = ncread(filename,'RAIN');
         end
         
         if j == 1
@@ -77,6 +82,10 @@ for i = 1 : length(runs)
                 qh2oocn     = NaN(numc,length(files)/12);
                 qlnd2ocn    = NaN(numc,length(files)/12);
                 qinfl       = NaN(numc,length(files)/12);
+                h2osoisur   = NaN(numc,length(files)/12);
+                qcharge     = NaN(numc,length(files)/12);
+                qh2osfc     = NaN(numc,length(files)/12);
+                rain        = NaN(numc,length(files)/12);
             end
         end
         
@@ -89,6 +98,10 @@ for i = 1 : length(runs)
                 qh2oocn_mon  = NaN(numc,12);
                 qlnd2ocn_mon = NaN(numc,12);
                 qinfl_mon    = NaN(numc,12);
+                h2osoisur_mon= NaN(numc,12);
+                qcharge_mon  = NaN(numc,12);
+                qh2osfc_mon  = NaN(numc,12);
+                rain_mon     = NaN(numc,12);
             end
         end
         
@@ -104,11 +117,20 @@ for i = 1 : length(runs)
                 qh2oocn_mon(:,12)  = tmp5;
                 qlnd2ocn_mon(:,12) = tmp6;
                 qinfl_mon(:,12)    = tmp7;
+                h2osoisur_mon(:,12)= tmp8;
+                qcharge_mon(:,12)  = tmp9;
+                qh2osfc_mon(:,12)  = tmp10;
+                rain_mon(:,12)     = tmp11;
+                
                 qrunoff(:,j/12)  = nanmean(qrunoff_mon,2);
                 qover(:,j/12)    = nanmean(qover_mon,2);
                 qh2oocn(:,j/12)  = nanmean(qh2oocn_mon,2);
                 qlnd2ocn(:,j/12) = nanmean(qlnd2ocn_mon,2);
                 qinfl(:,j/12)    = nanmean(qinfl_mon,2);
+                h2osoisur(:,j/12)= nanmean(h2osoisur_mon,2);
+                qcharge(:,j/12)  = nanmean(qcharge_mon,2);
+                qh2osfc(:,j/12)  = nanmean(qh2osfc_mon,2);
+                rain(:,j/12)     = nanmean(rain_mon,2);
             end
             
         else
@@ -121,6 +143,10 @@ for i = 1 : length(runs)
                 qh2oocn_mon(:,mod(j,12))  = tmp5;
                 qlnd2ocn_mon(:,mod(j,12)) = tmp6;
                 qinfl_mon(:,mod(j,12))    = tmp7;
+                h2osoisur_mon(:,mod(j,12))= tmp8;
+                qcharge_mon(:,mod(j,12))  = tmp9;
+                qh2osfc_mon(:,mod(j,12))  = tmp10;
+                rain_mon(:,mod(j,12))     = tmp11;
             end
             
         end
@@ -130,7 +156,7 @@ for i = 1 : length(runs)
     
     if strcmp(type,'sim')
         save(['../data/outputs/' tags{i} '_results_annual.mat'],'qrunoff', ...
-              'qover','qh2oocn','qlnd2ocn','qinfl');
+              'qover','qh2oocn','qlnd2ocn','qinfl','h2osoisur','qcharge','qh2osfc','rain');
     end
     
     end
@@ -140,7 +166,7 @@ for i = 1 : length(runs)
     if ~exist(['../data/outputs/' tags{i} '_AMR.mat'],'file')
         % Read daily outputs
         if i == 1 || i == 2 || i > 4
-            yr1 = 1971; yr2 = 2005;
+            yr1 = 1980; yr2 = 2014;
         elseif i == 3 || i == 4
             yr1 = 2016; yr2 = 2050;
         end
