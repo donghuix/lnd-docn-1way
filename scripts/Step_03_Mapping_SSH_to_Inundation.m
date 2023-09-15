@@ -19,10 +19,10 @@ Y = Y';
 F = griddedInterpolant(X,Y,merit_bathtub);
 
 days_of_month = [31;28;31;30;31;30;31;31;30;31;30;31];
-slr_offsets   = [ 0.25; 0.50; 0.75; 1.00];
-slr_labels    = {'025','050','075','100'};
-for i = 3%1 : length(GCM)
-    for iy = 2016 : 2050
+slr_offsets   = [0 0.25; 0.50; 0.75; 1.00];
+slr_labels    = {'000','025','050','075','100'};
+for i = [1 2 4 5]%1 : length(GCM)
+    for iy = 1951 : 2014
         for im = 1 : 12
             disp([GCM{i} ', year: ' num2str(iy) ', month: ' num2str(im)]);
             if iy < 2016
@@ -41,7 +41,7 @@ for i = 3%1 : length(GCM)
             end
             wl0 = ncread(fin,'waterlevel');
             
-            for islr = 1 : length(slr_offsets)
+            for islr = 1 
                 datadir = ['../MERIT_inundation/' slr_labels{islr} '/'];
                 if im < 10
                 fout = [datadir GCM{i} '_' tag '_inundation_' num2str(iy) '_0' num2str(im) '.mat'];

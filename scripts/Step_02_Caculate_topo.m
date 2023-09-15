@@ -1,7 +1,7 @@
 clear;close all;clc;
 
-dx = 1/4;
-dy = 1/4;
+dx = 1/8;
+dy = 1/8;
 
 fileID = fopen('/compyfs/icom/xudo627/MERIT/MERIT_tiles.txt');
 C = textscan(fileID,'%s');
@@ -61,6 +61,7 @@ for j = 1 : length(C{1})
         load(['/compyfs/xudo627/lnd-docn-1way/MERIT_topo/' tile(1:8) 'topo.mat']);
     end
     
+    if dx == 1/4
     [irow,icol] = find(lon == xmin + dx/2 & lat == ymax - dy/2);
     tmp = topo4th(irow:irow+nrows-1,icol:icol+ncols-1);
     if all(isnan(tmp(:)))
@@ -68,6 +69,9 @@ for j = 1 : length(C{1})
     else
         error('check dimension!');
     end
+    end
     
 end
+if dx == 1/4
 save('topo4th.mat','lon','lat','topo4th');
+end

@@ -70,6 +70,8 @@ for i = 1 : length(runs)
            tmp9  = ncread(filename,'QCHARGE');
            tmp10 = ncread(filename,'QH2OSFC');
            tmp11 = ncread(filename,'RAIN');
+           tmp12 = ncread(filename,'TG');
+           tmp13 = ncread(filename,'EFLX_LH_TOT');
         end
         
         if j == 1
@@ -86,6 +88,8 @@ for i = 1 : length(runs)
                 qcharge     = NaN(numc,length(files)/12);
                 qh2osfc     = NaN(numc,length(files)/12);
                 rain        = NaN(numc,length(files)/12);
+                tgrnd       = NaN(numc,length(files)/12);
+                lambdaE     = NaN(numc,length(files)/12);
             end
         end
         
@@ -102,6 +106,8 @@ for i = 1 : length(runs)
                 qcharge_mon  = NaN(numc,12);
                 qh2osfc_mon  = NaN(numc,12);
                 rain_mon     = NaN(numc,12);
+                tgrnd_mon    = NaN(numc,12);
+                lambdaE_mon  = NaN(numc,12);
             end
         end
         
@@ -121,6 +127,8 @@ for i = 1 : length(runs)
                 qcharge_mon(:,12)  = tmp9;
                 qh2osfc_mon(:,12)  = tmp10;
                 rain_mon(:,12)     = tmp11;
+                tgrnd_mon(:,12)    = tmp12;
+                lambdaE_mon(:,12)  = tmp13;
                 
                 qrunoff(:,j/12)  = nanmean(qrunoff_mon,2);
                 qover(:,j/12)    = nanmean(qover_mon,2);
@@ -131,6 +139,8 @@ for i = 1 : length(runs)
                 qcharge(:,j/12)  = nanmean(qcharge_mon,2);
                 qh2osfc(:,j/12)  = nanmean(qh2osfc_mon,2);
                 rain(:,j/12)     = nanmean(rain_mon,2);
+                tgrnd(:,j/12)    = nanmean(tgrnd_mon,2);
+                lambdaE(:,j/12)  = nanmean(lambdaE_mon,2);
             end
             
         else
@@ -147,6 +157,8 @@ for i = 1 : length(runs)
                 qcharge_mon(:,mod(j,12))  = tmp9;
                 qh2osfc_mon(:,mod(j,12))  = tmp10;
                 rain_mon(:,mod(j,12))     = tmp11;
+                tgrnd_mon(:,mod(j,12))    = tmp12;
+                lambdaE_mon(:,mod(j,12))  = tmp13;
             end
             
         end
@@ -156,7 +168,8 @@ for i = 1 : length(runs)
     
     if strcmp(type,'sim')
         save(['../data/outputs/' tags{i} '_results_annual.mat'],'qrunoff', ...
-              'qover','qh2oocn','qlnd2ocn','qinfl','h2osoisur','qcharge','qh2osfc','rain');
+              'qover','qh2oocn','qlnd2ocn','qinfl','h2osoisur','qcharge',  ...
+              'qh2osfc','rain','tgrnd','lambdaE');
     end
     
     end
@@ -173,6 +186,7 @@ for i = 1 : length(runs)
 
         AMTR  = NaN(84300,yr2-yr1+1); % Annual Maximum Total Runoff
         AMDR  = NaN(84300,yr2-yr1+1); % Annual Maximum Drainage Runoff
+        AMSR  = NaN(84300,yr2-yr1+1); % Annual Maximum Surface Runoff
         AMZWT = NaN(84300,yr2-yr1+1); % Annual Maximum ZWT
         AMSF  = NaN(84300,yr2-yr1+1); % Annual Maximum Saturation Fraction
         %SF30  = NaN(84300,yr2-yr1+1); % 30-days daily Saturation Fraction ceterned at AMSF
@@ -184,6 +198,7 @@ for i = 1 : length(runs)
             tmp2 = NaN(84300,length(files));
             tmp3 = NaN(84300,length(files));
             tmp4 = NaN(84300,length(files));
+            tmp5 = NaN(84300,length(files));
             for ii = 1 : length(files)
                 filename = fullfile(files(ii).folder,files(ii).name);
                 disp(filename);
@@ -191,14 +206,16 @@ for i = 1 : length(runs)
                 tmp2(:,ii) = ncread(filename,'QDRAI');
                 tmp3(:,ii) = ncread(filename,'ZWT');
                 tmp4(:,ii) = ncread(filename,'FSAT');
+                tmp5(:,ii) = ncread(filename,'QOVER');
             end
             AMTR(:,yr-yr1+1) = max(tmp1,[],2);
             AMDR(:,yr-yr1+1) = max(tmp2,[],2);
+            AMSR(:,yr-yr1+1) = max(tmp1-tmp2,[],2);
             AMZWT(:,yr-yr1+1)= max(tmp3,[],2);
             [Is,AMSF(:,yr-yr1+1)] = max(tmp4,[],2);
         end
 
-        save(['../data/outputs/' tags{i} '_AMR.mat'],'AMTR','AMDR','AMZWT','AMSF');
+        save(['../data/outputs/' tags{i} '_AMR.mat'],'AMTR','AMDR','AMSR','AMZWT','AMSF');
     end
     
     end

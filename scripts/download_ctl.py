@@ -13,7 +13,7 @@ for i in range(1951,2015):
         {
             'format': 'zip',
             'experiment': 'historical',
-            'model': 'GFDL-CM4C192-SST',
+            'model': 'CMCC-CM2-VHR4',
             'temporal_aggregation': '10_min',
             'year': str(i),
             'month': [
