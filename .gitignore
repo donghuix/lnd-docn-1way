@@ -6,6 +6,7 @@ MERIT/*
 MERIT_bathtub/*
 MERIT_frac/*
 MERIT_inundation/*
+MERIT_topo/*
 projection/*
 results/*
 test/*
@@ -18,3 +19,4 @@ data/ind_2d_to_1d.mat
 scripts/*.log
 code/*.log
 data/outputs/*
+writing/*
