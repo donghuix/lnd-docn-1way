@@ -92,5 +92,8 @@ t2.Color = 'k'; t2.FontWeight = 'bold'; t2.FontSize = 14;
 num = mean(max(inund_enb,[],2)' - min(inund_enb,[],2)')/mean(inund)*100;
 fprintf(['The ensemble inundaiton is about ' num2str(num) '% of the mean projected inundation\n']);
 
-exportgraphics(gcf,'../writing/Figure_4.pdf','Resolution',400);
+save('../plot_scripts/Figure4_data.mat','xv','yv','area1deg','lon','lat','inund_fut1deg', ...
+                                      'inund_ctl1deg','inund_enb','inund','inund0','cmap','-v7.3');
+
+%exportgraphics(gcf,'../writing/Figure_4.pdf','Resolution',400);
 %exportgraphics(gcf,'../writing/Bathtub_Inundation.pdf','ContentType','vector');

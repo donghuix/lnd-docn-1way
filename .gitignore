@@ -20,3 +20,4 @@ scripts/*.log
 code/*.log
 data/outputs/*
 writing/*
+plot_scripts/*.jpg

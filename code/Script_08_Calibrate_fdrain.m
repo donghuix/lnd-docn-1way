@@ -162,6 +162,7 @@ end
 clear zwtyr;
 clear zwt_perchyr;
 cmap(1,:) = 1;
+r2b = flipud(blue2red(13));
 figure(5); set(gcf,'Position',[10 10 1000 800],'renderer','Painters'); 
 ax(1) = subplot(2,2,1);
 X = [fan8th zwt_cal];
@@ -216,7 +217,7 @@ ax(3) = axes('Position',[pos1(1) 0.05 pos2(1)+pos2(3)-pos1(1) pos1(2)-0.15]);
 imAlpha = ones(size(zwtcal_1deg));
 imAlpha(isnan(zwtcal_1deg - fan1deg)) = 0;
 imagesc([lon(1,1),lon(end,end)],[lat(1,1),lat(end,end)],zwtcal_1deg - fan1deg,'AlphaData',imAlpha); 
-colormap(ax(3),flipud(blue2red(13))); cb3 = colorbar('east'); hold on; caxis([-6.5 6.5]); 
+colormap(ax(3),r2b); cb3 = colorbar('east'); hold on; caxis([-6.5 6.5]); 
 set(gca,'YDir','normal'); set(gca,'FontSize',15);
 add_title(gca,'(c)', 20,'out');
 ylim([-60 90]);
@@ -226,7 +227,8 @@ cb3.FontSize = 15;
 cb3.Label.String = 'Absolute bias [m]';
 cb3.Label.FontSize = 15;
 cb3.Label.FontWeight = 'bold';
-exportgraphics(gcf,'../writing/Figure_3.jpg','Resolution',400);
+save('../plot_scripts/Figure3_data.mat','fan8th','zwt_cal','zwt_def','cmap','zwtcal_1deg','fan1deg','r2b','lon','lat','-v7.3');
+%exportgraphics(gcf,'../writing/Figure_3.jpg','Resolution',400);
 
 figure;
 X = [fan8th zwt_def];
@@ -271,4 +273,4 @@ str = {['R^{2} = ' num2str(R2default)], ['RMSE = ' num2str(RMSEdefault)]};
 t = add_title(ax1,str,14,'in');
 t.Position(2) = t.Position(2) - 0.7; t.Color = 'r';
 
-exportgraphics(gcf,'../writing/Default_ZWT.pdf','ContentType','vector');
+%exportgraphics(gcf,'../writing/Default_ZWT.pdf','ContentType','vector');

@@ -232,7 +232,7 @@ add_title(gca,'(b). Median SLR [m]');
 
 ax3(2).Position(2) = ax3(2).Position(2) + 0.075;
 
-exportgraphics(gcf,'../writing/GWL_VS_SLR.pdf','ContentType','vector');
+%exportgraphics(gcf,'../writing/GWL_VS_SLR.pdf','ContentType','vector');
 
 
 % subplot(3,1,3);
@@ -431,7 +431,7 @@ for i = 1 : 5
     h.CData(i,:) = cmap(i,:);
 end
 h.LineWidth = 2;
-exportgraphics(gcf,'../writing/Attribution.pdf','ContentType','vector');
+%exportgraphics(gcf,'../writing/Attribution.pdf','ContentType','vector');
 
 if plot_cities
 i = 4;
@@ -597,7 +597,9 @@ for i = [6 9 14 8]
     end
     k = k + 1;
 end
-
+save('../plot_scripts/Figure5_data.mat','lon','lat','foc_zwt_SLR1deg','foc_qver_SLR1deg', ...
+                                        'catogrory','SubR','merit_x','merit_y','merit_frac', ...
+                                        'merit_area','zwtyr','labels2','idx','-v7.3');
 %exportgraphics(gcf,'../writing/Figure_5.jpg','Resolution',400);
 
 labels3 = {'(a) ', '(b) ', '(c) ', '(d) '};
@@ -627,10 +629,10 @@ cbs2(2).FontSize = 15;
 % rc = foc_qamr_SLR1deg./qamr_ctl_ctl1deg.*100;
 [ foc_evap_SLR     ] = E1toE2( foc_evap_SLR,2     ).*365; % Convert ET from W/m^2 to mm/year
 [ foc_evap_SLR1deg ] = E1toE2( foc_evap_SLR1deg,2 ).*365; 
+cmap10 = getPanoply_cMap('NEO_meltseason_anom');
 %[axs3, cbs3] = plot_exs2(lon,lat,foc_tgrd_SLR1deg,foc_qrot_SLR1deg,[-0.5 -100],[0.5 100],{'\Delta T_{S} [^{\circ}C]','\Delta Runoff [mm]'});
 [axs3, cbs3] = plot_exs2(lon,lat,foc_tgrd_SLR1deg,foc_qrot_SLR1deg,[-0.5 -100],[0.5 100],...
                {'',''});
-cmap10 = getPanoply_cMap('NEO_meltseason_anom');
 colormap(axs3(1),cmap10);
 %(c) \Delta Runoff [mm/yr]
 %(a) \Delta Surface Temperature [{\circ}C]
@@ -707,7 +709,10 @@ ylim([-50 250]);
 colormap(gca,cmap);
 xlabel('SLR-induced \Delta Runoff','FontSize',13,'FontWeight','bold');
 ylabel('SLR-induced \Delta ET','FontSize',13,'FontWeight','bold');
-exportgraphics(gcf,'../writing/Figure_7.jpg','Resolution',400);
+%exportgraphics(gcf,'../writing/Figure_7.jpg','Resolution',400);
+save('../plot_scripts/Figure7_data.mat','lon','lat','foc_tgrd_SLR1deg','foc_qrot_SLR1deg',...
+                                        'cmap10','foc_tgrd_SLR','foc_tgrd_ATM','cmap', ...
+                                        'foc_qrot_ATM1deg','foc_qrot_SLR', 'foc_evap_SLR','-v7.3');
 
 foc_zwt_SLR = foc_zwt_SLR.*1000; %[m] --> [mm]
 % set(gcf,'renderer','Painters');
@@ -741,7 +746,8 @@ zlab = 'ET [%]'    ;
 
 ax = axes('Position',[0.125 0.175 0.2 0.25]);
 [tx, ty, tc] = add_triangle(ax,xlab,ylab,zlab);
-exportgraphics(gcf,'../writing/Figure_8.jpg','Resolution',400);
+save('../plot_scripts/Figure8_data.mat','f1','f2','f3','z','x','y','lon','lat','-v7.3');
+%exportgraphics(gcf,'../writing/Figure_8.jpg','Resolution',400);
 %exportgraphics(gcf,'../writing/Figure_8.pdf','ContentType','vector');
 f1 = abs(foc_zwt_SLR)./(abs(foc_zwt_SLR)  + abs(foc_evap_SLR) + abs(foc_qrot_SLR));
 f2 = abs(foc_qrot_SLR)./(abs(foc_zwt_SLR) + abs(foc_evap_SLR) + abs(foc_qrot_SLR));

@@ -1,5 +1,8 @@
 function [axs, cbs] = plot_exs2(lon,lat,a,b,cmin,cmax,labels)
-
+    
+    addpath('/Users/xudo627/Developments/getPanoply_cMap/');
+    addpath('/Users/xudo627/Developments/mylib/m/');
+    
     cmap = flipud(getPanoply_cMap('NEO_giss_temp_anom')); %blue2red(121);
 
     figure; set(gcf,'Position',[10 10 1000 1200]); 

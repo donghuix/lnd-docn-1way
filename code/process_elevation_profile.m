@@ -160,6 +160,8 @@ cbh.FontSize = 12; cbh.FontWeight = 'bold';
 cbh.AxisLocation = 'out';
 add_title(ax(1),'(a)',20,'out');
 add_title(ax(2),'(b)',20,'out');
+
+save('../plot_scripts/Figure2_data.mat','grid_X','grid_Y','connect2','cmap','inund2','inund0','inund','SLR_max','-v7.3');
 % ax(1).Position(1) = ax(1).Position(1) - 0.05;
 % ax(1).Position(2) = ax(1).Position(2) - 0.075;
 % ax(1).Position(3) = ax(1).Position(3) + 0.05;
@@ -175,7 +177,7 @@ add_title(ax(2),'(b)',20,'out');
 % ax(3).Position(2) = ax(3).Position(2) - 0.025;
 % ax(3).Position(3) = ax(3).Position(3) + 0.05;
 
-exportgraphics(gcf,'../writing/Bathtub_method.pdf','ContentType','vector');
+%exportgraphics(gcf,'../writing/Bathtub_method.pdf','ContentType','vector');
 
 % cmap2 = getPyPlot_cMap('terrain');
 % figure;
