@@ -1,7 +1,7 @@
 clear;close all;clc;
 
-addpath('/Users/xudo627/donghui/mylib/m/');
-addpath('/Users/xudo627/donghui/CODE/dengwirda-inpoly-355c57c/');
+addpath('/Users/xudo627/Developments/inpoly/');
+addpath('/Users/xudo627/Developments/mylib/m/');
 
 read_data = 1;
 res       = 1;
@@ -29,7 +29,7 @@ fan8th(gl_mask | ind_small) = [];
 
 idx = 6 : 35;
 
-if exist(['../data/processed/ratio_' num2str(res) 'deg.mat'],'file') && 0
+if exist(['../data/processed/ratio_' num2str(res) 'deg.mat'],'file') && 1
     load(['../data/processed/ratio_' num2str(res) 'deg.mat']);
 else
     for i = 1 : length(exs1)

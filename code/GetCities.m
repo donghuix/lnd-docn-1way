@@ -33,6 +33,6 @@ cities(27).Name = 'Qingdao'; cities(27).X = 120.3830; cities(27).Y = 36.0662;
 cities(28).Name = 'Virginia Beach'; cities(28).X = -75.9792; cities(28).Y = 36.8516;
 cities(29).Name = 'Tianjin'; cities(29).X = 117.1994; cities(29).Y = 39.0851;
 cities(30).Name = 'Lagos'; cities(30).X = 3.3792; cities(30).Y = 6.5244;
-cities(14) = [];
+cities([14 15]) = [];
 end
 

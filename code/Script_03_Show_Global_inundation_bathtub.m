@@ -22,6 +22,7 @@ merit_frac = [];
 merit_x = [];
 merit_y = [];
 merit_topo = [];
+merit_std  = [];
 merit_bathtub = NaN(84300,101);
 figure;
 for j = 1 : length(C{1})
@@ -58,10 +59,13 @@ for j = 1 : length(C{1})
     merit_y    = [merit_y; tmp.y(ii)];
     merit_topo = [merit_topo; tmp1.dem_mu];
     tmp2 = load(['../MERIT_bathtub/' tile(1:8) 'bathtub.mat']);
+    tmp3 = load(['../MERIT_bathtub/' tile(1:8) 'dem_std.mat']);
+    merit_std  = [merit_std; tmp3.dem_std];
     merit_bathtub(length(merit_frac)-length(ii) + 1 : length(merit_frac),:) = tmp2.bathtub_ele;
 end
 fclose(fileID);
 
+if 0
 [merit_xv,merit_yv,merit_area] = xc2xv(merit_x,merit_y,1/8,1/8,1);
 
 figure;
@@ -94,8 +98,9 @@ for i = 1 : length(merit_x)
         idx_GTSM2ELM(i) = ind;
     end
 end
+end
 
-save('domain_global_coastline_merit_90m.mat','merit_x','merit_y','merit_frac','merit_topo','idx_GTSM2ELM');
+%save('domain_global_coastline_merit_90m.mat','merit_x','merit_y','merit_frac','merit_topo','idx_GTSM2ELM');
 
 
 if plot_upscale

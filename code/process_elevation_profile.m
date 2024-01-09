@@ -1,13 +1,15 @@
 clear;clc;close all;
-addpath('/Users/xudo627/developments/getPanoply_cMap/');
-addpath('/Users/xudo627/donghui/CODE/dengwirda-inpoly-355c57c/');
+addpath('/Users/xudo627/Developments/getPanoply_cMap/');
+addpath('/Users/xudo627/Developments/inpoly/');
+addpath('/Users/xudo627/Developments/mylib/data/');
+addpath('/Users/xudo627/Developments/mylib/m/');
 
-longxy = ncread('/Users/xudo627/projects/cesm-inputdata/MOSART_NLDAS_8th_c210129.nc','longxy');
-latixy = ncread('/Users/xudo627/projects/cesm-inputdata/MOSART_NLDAS_8th_c210129.nc','latixy');
+longxy = ncread('/Users/xudo627/Library/CloudStorage/OneDrive-PNNL/projects/cesm-inputdata/rof/mosart/MOSART_NLDAS_8th_c210129.nc','longxy');
+latixy = ncread('/Users/xudo627/Library/CloudStorage/OneDrive-PNNL/projects/cesm-inputdata/rof/mosart/MOSART_NLDAS_8th_c210129.nc','latixy');
 
-frac   = ncread('/Users/xudo627/projects/cesm-inputdata/domain.lnd.nldas2_0224x0464_c110415.nc','frac');
-xv     = ncread('/Users/xudo627/projects/cesm-inputdata/domain.lnd.nldas2_0224x0464_c110415.nc','xv');
-yv     = ncread('/Users/xudo627/projects/cesm-inputdata/domain.lnd.nldas2_0224x0464_c110415.nc','yv');
+frac   = ncread('/Users/xudo627/Library/CloudStorage/OneDrive-PNNL/projects/cesm-inputdata/share/domains/domain.lnd.nldas2_0224x0464_c110415.nc','frac');
+xv     = ncread('/Users/xudo627/Library/CloudStorage/OneDrive-PNNL/projects/cesm-inputdata/share/domains/domain.lnd.nldas2_0224x0464_c110415.nc','xv');
+yv     = ncread('/Users/xudo627/Library/CloudStorage/OneDrive-PNNL/projects/cesm-inputdata/share/domains/domain.lnd.nldas2_0224x0464_c110415.nc','yv');
 ind = find(frac > 0 & frac < 0.99);
 lon = longxy(ind);
 lat = latixy(ind);
@@ -18,8 +20,6 @@ lonv(1,:) = lon - dx/2; lonv(2,:) = lon + dx/2; lonv(3,:) = lon + dx/2; lonv(4,:
 latv(1,:) = lat - dy/2; latv(2,:) = lat - dy/2; latv(3,:) = lat + dy/2; latv(4,:) = lat + dy/2; 
 ele  = NaN(length(ind),100);
 ele2 = NaN(length(ind),100);
-
-%files = dir('/Volumes/LaCie/DATA/_processed/n*.mat');
 
 dem2 = imread('../MERIT/n40w075_dem.tif');
 dem2 = double(dem2);
@@ -76,7 +76,9 @@ plot(coastlon,coastlat,'r-','LineWidth',2);
 xlim([-160 -20]);
 ylim([0 70]);
 figure;
-cmap = getPanoply_cMap('NEO_modis_lst',0);
+cmap = load('colorblind_colormap.mat');
+cmap = cmap.colorblind([2 11 6 1],:);
+%getPanoply_cMap('NEO_modis_lst',0);
 imagesc(flipud(frac')); colormap(cmap);colorbar;
 
 figure;
@@ -86,65 +88,94 @@ xlabel('Fraction','FontSize',15,'FontWeight','bold');
 ylabel('Elevation','FontSize',15,'FontWeight','bold');
 legend('HydroSHEDS','MERIT','FontSize',15);
 
-figure;
-plot(0:0.01:1,ele(in(j),:),'k-','LineWidth',2); hold on;
-%plot(0:0.01:1,ele2(in(j),:),'b--','LineWidth',2); 
-
 
 ny = (i1-i2+1);
 nx = (j2-j1+1);
-grid_dem = reshape(dem2(i2:i1,j1:j2),[ny,nx]);
+grid_dem = reshape(dem(i2:i1,j1:j2),[ny,nx]);
+grid_X = reshape(X(i2:i1,j1:j2),[ny,nx]);
+grid_Y = reshape(Y(i2:i1,j1:j2),[ny,nx]);
+grid_dem2= reshape(dem2(i2:i1,j1:j2),[ny,nx]);
 grid_x   = X(i2:i1,j1:j2);
 grid_y   = Y(i2:i1,j1:j2);
 
-SLR_max = 5;
-
-connect = bathtub(grid_dem,SLR_max);
+SLR_max = 1;
 %grid_dem(~connect & ~isnan(grid_dem)) = 9999;
 
 k = 1;
 for SLR = 0 : 0.1 : SLR_max
     disp(['SLR = ' num2str(SLR)]);
-    below    = grid_dem <= SLR & connect;
-    below0   = grid_dem <= SLR;
+    connect2 = bathtub(grid_dem2,SLR);
+    below2   = grid_dem2 <= SLR & connect2;
+    below0   = grid_dem2 <= SLR;
+    connect = bathtub(grid_dem,SLR);
+    below    = grid_dem  <= SLR & connect;
 %     below    = bathtub(below,nx,ny);
-    inund(k,1) = sum(below(:)) / length(find(~isnan(grid_dem(:))));
-    inund0(k,1) = sum(below0(:)) / length(find(~isnan(grid_dem(:))));
+    inund(k,1)  = sum(below(:))  / length(find(~isnan(grid_dem(:))));
+    inund0(k,1) = sum(below0(:)) / length(find(~isnan(grid_dem2(:))));
+    inund2(k,1) = sum(below2(:)) / length(find(~isnan(grid_dem2(:))));
     k = k + 1;
 end
 
-connect(isnan(grid_dem)) = -1;
+connect = bathtub(grid_dem2,SLR_max);
+connect(isnan(grid_dem2)) = -1;
 
-hold on;
-plot(inund0,0 : 0.1 : SLR_max,'b--','LineWidth',2);
-plot(inund,0 : 0.1 : SLR_max,'r-o','LineWidth',1);
-legend('HydroSHEDS','MERIT','Bathtub','FontSize',15);
-
-xlim([min(inund) max(inund)]);
-xlabel('Fraction','FontSize',15,'FontWeight','bold');
-ylabel('Elevation','FontSize',15,'FontWeight','bold');
-
-cmap = getPyPlot_cMap('Set1',9);
-
-figure; set(gcf,'Position',[10 10 1400 500]);
-
-subplot(1,2,1);
+figure; set(gcf,'Position',[10 10 1200 500]);
+ax(1) = subplot(1,2,1);
 connect0 = connect;
-connect0(grid_dem < SLR_max) = 1;
-imagesc(connect0); colormap(cmap([2 3 1],:));
-cbh = colorbar ; %Create Colorbarc
-caxis([-1.5 1.5]);
-cbh.Ticks = [-1 0 1];
-cbh.TickLabels = {'Ocean','Land','Flooded'};
-title('No connectivity','FontSize',15,'FontWeight','bold');
+connect0(grid_dem2 < SLR_max) = 1;
+connect2 = connect0;
+connect2(connect0 == 1 & connect == 0) = 2;
 
-subplot(1,2,2);
-imagesc(connect); colormap(cmap([2 3 1],:));
-cbh = colorbar ; %Create Colorbarc
-caxis([-1.5 1.5]);
-cbh.Ticks = [-1 0 1];
-cbh.TickLabels = {'Ocean','Land','Flooded'};
-title('With connectivity','FontSize',15,'FontWeight','bold');
+imagesc([grid_X(1,1) grid_X(end,end)], [grid_Y(1,1) grid_Y(end,end)],connect2); hold on;
+colormap(cmap([2 3 1 4],:)); cbh = colorbar('west');
+set(gca,'YDir','normal'); clim([-1.5 2.5]);
+
+% ax(2) = subplot(2,2,2);
+% imagesc([grid_X(1,1) grid_X(end,end)], [grid_Y(1,1) grid_Y(end,end)],connect); hold on;
+% colormap(cmap([2 3 1],:));
+% cbh = colorbar('west'); %Create Colorbarc
+% set(gca,'YDir','normal');clim([-1.5 1.5]);
+cbh.Ticks = [-1 0 1 2];
+cbh.TickLabels = {'Ocean','Land','Lower area\newlineconnected\newlineto ocean','Lower area\newlinenot connected\newlineto ocean'};
+% add_title(gca,'(b) Consider connectivity');
+
+ax(2) = subplot(1,2,2);
+plot(inund2,0 : 0.1 : SLR_max,'r-o','LineWidth',1.5,'MarkerSize',8);grid on;hold on;
+plot(inund0,0 : 0.1 : SLR_max,'b-d','LineWidth',1.5,'MarkerSize',8);
+plot(inund, 0 : 0.1 : SLR_max,'k-s','LineWidth',1.5,'MarkerSize',8); 
+xlim(ax(2),[0.019 0.115]);
+ylim(ax(2),[0 1.1]);
+legend('MERIT-consider connectivity','MERIT-ignore connectivity','HydroSHEDS','FontSize',13,...
+       'NumColumns',2,'Color','none','EdgeColor','none','Location','northwest');
+set(gca,'FontSize',13);
+% xlim([min(inund) max(inund)]);
+xlabel('Inundation Fraction [-]','FontSize',14,'FontWeight','bold');
+ylabel('Sea Surface Height [m]','FontSize',14,'FontWeight','bold');
+
+
+% Adjust axis position
+ax(1).Position(1) = ax(1).Position(1) - 0.05;
+cbh.Position = [ax(1).Position(1) + ax(1).Position(3) + 0.01 ax(1).Position(2) 0.02 ax(1).Position(4)];
+cbh.FontSize = 12; cbh.FontWeight = 'bold';
+cbh.AxisLocation = 'out';
+add_title(ax(1),'(a)',20,'out');
+add_title(ax(2),'(b)',20,'out');
+% ax(1).Position(1) = ax(1).Position(1) - 0.05;
+% ax(1).Position(2) = ax(1).Position(2) - 0.075;
+% ax(1).Position(3) = ax(1).Position(3) + 0.05;
+% ax(1).Position(4) = ax(1).Position(4) + 0.1;
+% 
+% ax(2).Position(1) = ax(2).Position(1) - 0.05;
+% ax(2).Position(2) = ax(2).Position(2) - 0.075;
+% ax(2).Position(3) = ax(2).Position(3) + 0.05;
+% ax(2).Position(4) = ax(2).Position(4) + 0.1;
+% cbh.Position = [ax(2).Position(1) + ax(2).Position(3) + 0.01 ax(2).Position(2) 0.02 ax(2).Position(4)];
+% cbh.FontSize = 12; cbh.FontWeight = 'bold';
+% ax(3).Position(1) = ax(3).Position(1) - 0.05;
+% ax(3).Position(2) = ax(3).Position(2) - 0.025;
+% ax(3).Position(3) = ax(3).Position(3) + 0.05;
+
+exportgraphics(gcf,'../writing/Bathtub_method.pdf','ContentType','vector');
 
 % cmap2 = getPyPlot_cMap('terrain');
 % figure;
